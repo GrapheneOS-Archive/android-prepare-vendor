@@ -88,36 +88,6 @@ extract_system_ext_partition_size() {
   extract_partition_size system_ext "$1" "$2"
 }
 
-mount_darwin() {
-  local imgFile="$1"
-  local mountPoint="$2"
-  local mount_log="$TMP_WORK_DIR/mount.log"
-  local -a osxfuse_ver
-  local os_major_ver
-
-  os_major_ver="$(sw_vers -productVersion | cut -d '.' -f2)"
-  if [ "$os_major_ver" -ge 12 ]; then
-    # If Sierra and above, check that latest supported (3.5.4) osxfuse version is installed
-    local osxfuse_plist="/Library/Filesystems/osxfuse.fs/Contents/version.plist"
-    IFS='.' read -r -a osxfuse_ver <<< "$(grep '<key>CFBundleVersion</key>' -A1 "$osxfuse_plist" | \
-      grep -o '<string>.*</string>' | cut -d '>' -f2 | cut -d '<' -f1)"
-
-    if [[ ("${osxfuse_ver[0]}" -lt 3 ) || \
-          ("${osxfuse_ver[0]}" -eq 3 && "${osxfuse_ver[1]}" -lt 5) || \
-          ("${osxfuse_ver[0]}" -eq 3 && "${osxfuse_ver[1]}" -eq 5 && "${osxfuse_ver[2]}" -lt 4) ]]; then
-      echo "[!] Detected osxfuse version is '$(echo  "${osxfuse_ver[@]}" | tr ' ' '.')'"
-      echo "[-] Update to latest or disable the check if you know that you're doing"
-      abort 1
-    fi
-  fi
-
-  ext4fuse -o logfile=/dev/stdout,uid=$EUID,ro "$imgFile" "$mountPoint" &>"$mount_log" || {
-    echo "[-] '$imgFile' mount failed"
-    cat "$mount_log"
-    abort 1
-  }
-}
-
 mount_linux() {
   local imgFile="$1"
   local mountPoint="$2"
@@ -148,20 +118,14 @@ extract_img_data() {
     mkdir -p "$out_dir"
   fi
 
-  if [[ "$HOST_OS" == "Darwin" ]]; then
-    debugfs -R "rdump / \"$out_dir\"" "$image_file" &> "$logFile" || {
+  debugfs -R 'ls -p' "$image_file" 2>/dev/null | cut -d '/' -f6 | while read -r entry
+  do
+    debugfs -R "rdump \"$entry\" \"$out_dir\"" "$image_file" >> "$logFile" 2>&1 || {
       echo "[-] Failed to extract data from '$image_file'"
       abort 1
     }
-  else
-    debugfs -R 'ls -p' "$image_file" 2>/dev/null | cut -d '/' -f6 | while read -r entry
-    do
-      debugfs -R "rdump \"$entry\" \"$out_dir\"" "$image_file" >> "$logFile" 2>&1 || {
-        echo "[-] Failed to extract data from '$image_file'"
-        abort 1
-      }
-    done
-  fi
+  done
+
 
   local symlink_err="rdump: Attempt to read block from filesystem resulted in short read while reading symlink"
   if grep -Fq "$symlink_err" "$logFile"; then
@@ -179,11 +143,7 @@ mount_img() {
     mkdir -p "$mount_dir"
   fi
 
-  if [[ "$HOST_OS" == "Darwin" ]]; then
-    mount_darwin "$image_file" "$mount_dir"
-  else
-    mount_linux "$image_file" "$mount_dir"
-  fi
+  mount_linux "$image_file" "$mount_dir"
 
   if ! mount | grep -qs "$mount_dir"; then
     echo "[-] '$image_file' mount point missing indicates fuse mount error"
@@ -204,7 +164,7 @@ RUNS_WITH_ROOT=false
 
 # Compatibility
 HOST_OS=$(uname)
-if [[ "$HOST_OS" != "Linux" && "$HOST_OS" != "Darwin" ]]; then
+if [[ "$HOST_OS" != "Linux" ]]; then
   echo "[-] '$HOST_OS' OS is not supported"
   abort 1
 fi
@@ -262,10 +222,6 @@ elif [ "$USE_FUSEEXT2" = true ]; then
   SYS_TOOLS+=("fuse-ext2")
 else
   SYS_TOOLS+=("ext4fuse")
-  # Platform specific commands
-  if [[ "$HOST_OS" == "Darwin" ]]; then
-    SYS_TOOLS+=("sw_vers")
-  fi
 fi
 
 # Check that system tools exist

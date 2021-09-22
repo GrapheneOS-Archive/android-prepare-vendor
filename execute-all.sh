@@ -88,7 +88,6 @@ cat <<_EOF
         or you have issues with some carriers
       * Default bytecode de-optimization repair choise is based on most stable/heavily-tested method.
         If you need to change the defaults, you can select manually.
-      * Darwin systems can use the ext4fuse to extract data from ext4 images without root
       * Linux system can use the ext4fuse, fuse-ext2 or debugfs to extract data from ext4 images
         without root. If script is run as root, loopback mount is used instead of fuses.
 _EOF
@@ -112,17 +111,9 @@ dir_exists_or_create() {
 check_compatible_system() {
   local hostOS
   hostOS=$(uname -s)
-  if [[ "$hostOS" != "Linux" && "$hostOS" != "Darwin" ]]; then
+  if [[ "$hostOS" != "Linux" ]]; then
     echo "[-] '$hostOS' OS is not supported"
     abort 1
-  fi
-}
-
-isDarwin() {
-  if [[ "$(uname -s)" == "Darwin" ]]; then
-    return 0
-  else
-    return 1
   fi
 }
 
@@ -144,12 +135,7 @@ oatdump_deps_download() {
   local out_file="$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level/oatdump_deps.zip"
   mkdir -p "$(dirname "$out_file")"
 
-
-  if [[ "$HOST_OS" == "Darwin" ]]; then
-    download_url="D_OATDUMP_URL_API$api_level"
-  else
-    download_url="L_OATDUMP_URL_API$api_level"
-  fi
+download_url="L_OATDUMP_URL_API$api_level"
 
   curl -L -o "$out_file" "${!download_url}" || {
     echo "[-] oatdump dependencies download failed"
@@ -168,11 +154,7 @@ needs_oatdump_update() {
 
   deps_zip="$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level/oatdump_deps.zip"
   deps_cur_sig=$(shasum -a256 "$deps_zip" | cut -d ' ' -f1)
-  if [[ "$HOST_OS" == "Darwin" ]]; then
-    deps_latest_sig="D_OATDUMP_API$api_level""_SIG"
-  else
-    deps_latest_sig="L_OATDUMP_API$api_level""_SIG"
-  fi
+  deps_latest_sig="L_OATDUMP_API$api_level""_SIG"
 
   if [[ "${!deps_latest_sig}" == "$deps_cur_sig" ]]; then
     return 1
@@ -258,14 +240,9 @@ update_java_path() {
     if [[ "$__JAVALINK" == "" ]]; then
       echo "[!] Java not found in system"
     else
-      if [[ "$HOST_OS" == "Darwin" ]]; then
-        __javahome="$(/usr/libexec/java_home)"
-        __javadir="$__javahome/bin"
-      else
-        __javapath=$(_realpath "$__JAVALINK")
-        __javadir=$(dirname "$__javapath")
-        __javahome="$__javapath"
-      fi
+      __javapath=$(_realpath "$__JAVALINK")
+      __javadir=$(dirname "$__javapath")
+      __javahome="$__javapath"
       JAVA_FOUND=true
     fi
   fi
@@ -444,19 +421,13 @@ done
 # Check user input args
 check_input_args
 
-# Platform specific commands
-if isDarwin; then
+# Check if script is running as root to directly use loopback instead of fuses
+if [ "$EUID" -eq 0 ]; then
   SYS_TOOLS+=("umount")
-  _UMOUNT=umount
-else
-  # Check if script is running as root to directly use loopback instead of fuses
-  if [ "$EUID" -eq 0 ]; then
-    SYS_TOOLS+=("umount")
-    _UMOUNT="umount"
-  elif [ "$USE_DEBUGFS" = false ]; then
-    SYS_TOOLS+=("fusermount")
-    _UMOUNT="fusermount -uz"
-  fi
+  _UMOUNT="umount"
+elif [ "$USE_DEBUGFS" = false ]; then
+  SYS_TOOLS+=("fusermount")
+  _UMOUNT="fusermount -uz"
 fi
 
 # Check that system tools exist

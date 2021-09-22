@@ -71,7 +71,7 @@ CONFIG_FILE=""
 
 # Compatibility
 HOST_OS=$(uname)
-if [[ "$HOST_OS" != "Linux" && "$HOST_OS" != "Darwin" ]]; then
+if [[ "$HOST_OS" != "Linux" ]]; then
   echo "[-] '$HOST_OS' OS is not supported"
   abort 1
 fi

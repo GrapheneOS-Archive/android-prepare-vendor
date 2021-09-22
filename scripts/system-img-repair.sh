@@ -67,12 +67,7 @@ check_ram_size() {
   local ram_size
 
   host_os=$(uname -s)
-  ram_size=0
-  if [[ "$host_os" == "Darwin" ]]; then
-    ram_size=$(sysctl hw.memsize | cut -d ":" -f 2 | awk '{$1=$1/(1024^3); print int($1);}')
-  else
-    ram_size=$(grep MemTotal /proc/meminfo | awk '{print $2}'  | awk '{$1=$1/(1024^2); print int($1);}')
-  fi
+  ram_size=$(grep MemTotal /proc/meminfo | awk '{print $2}'  | awk '{$1=$1/(1024^2); print int($1);}')
 
   if [ "$ram_size" -le 2 ]; then
     echo "[!] Host RAM size <= 2GB - jars might crash due to low memory"
@@ -283,11 +278,6 @@ oatdump_repair() {
   local -a abis
   local -a bootJars
   local _base_path
-
-  if [[ "$(uname)" == "Darwin" ]]; then
-    _base_path="$(dirname "$OATDUMP_BIN")/.."
-    export DYLD_FALLBACK_LIBRARY_PATH=$_base_path/lib64:$_base_path/lib
-  fi
 
   # Identify supported ABI(s) - extra work for 64bit ABIs
   for cpu in "arm" "arm64" "x86" "x86_64"
