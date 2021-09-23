@@ -24,7 +24,6 @@
   "BoardConfigVendorMk": "redfin/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "redfin/proprietary/device-vendor.mk",
   "api-30": {
-    "naked": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "product-bytecode": [],
@@ -987,6 +986,5 @@
         "odm/etc/passwd",
         "overlay/SecureElement__auto_generated_rro_vendor.apk"
       ]
-    }
   }
 }

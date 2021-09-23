@@ -24,7 +24,6 @@
   "BoardConfigVendorMk": "bonito/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "bonito/proprietary/device-vendor.mk",
   "api-30": {
-    "naked": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "system-bytecode": [
@@ -602,6 +601,6 @@
         "odm/etc/vintf/manifest_G020G.xml",
         "odm/etc/vintf/manifest_G020H.xml"
       ]
+
     }
-  }
 }

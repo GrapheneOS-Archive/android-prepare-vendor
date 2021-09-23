@@ -50,7 +50,6 @@ cat <<_EOF
       -o|--output    : Path to save vendor blobs & makefiles in AOSP compatible structure
       --aosp-root    : [OPTIONAL] AOSP ROOT SRC directoy to directly rsync output
       --conf-file    : Device configuration file
-      --conf-type    : 'naked' or 'full' configuration profile
       --api          : API level in order to pick appropriate config file
       --allow-preopt : [OPTIONAL] Don't disable LOCAL_DEX_PREOPT for /system
       --force-vimg   : [OPTIONAL] Always override AOSP definitions with included vendor blobs
@@ -1182,7 +1181,7 @@ gen_sigs_file() {
 
 setOverlaysDir() {
   local relDir
-  relDir="$(jqRawStr "$API_LEVEL" "$CONFIG_TYPE" "overlays-dir" "$CONFIG_FILE")"
+  relDir="$(jqRawStr "$API_LEVEL" "overlays-dir" "$CONFIG_FILE")"
   if [[ "$relDir" == "" ]]; then
     echo ""
   else
@@ -1205,7 +1204,6 @@ INPUT_DIR=""
 AOSP_ROOT=""
 OUTPUT_DIR=""
 CONFIG_FILE=""
-CONFIG_TYPE="naked"
 API_LEVEL=""
 ALLOW_PREOPT=false
 FORCE_VIMG=false
@@ -1246,10 +1244,6 @@ do
       CONFIG_FILE="$2"
       shift
       ;;
-    --conf-type)
-      CONFIG_TYPE="$2"
-      shift
-      ;;
     --api)
       API_LEVEL="$2"
       shift
@@ -1274,19 +1268,18 @@ check_dir "$OUTPUT_DIR" "Output"
 check_file "$CONFIG_FILE" "Device Config File"
 
 # Check if valid config type & API level
-isValidConfigType "$CONFIG_TYPE"
 isValidApiLevel "$API_LEVEL"
 
 # Populate config files from base conf dir
 readonly DEVICE_CONFIG_DIR="$(dirname "$CONFIG_FILE")"
 readonly BLOBS_LIST="$DEVICE_CONFIG_DIR/proprietary-blobs.txt"
 readonly OVERLAYS_DIR="$(setOverlaysDir)"
-readonly RRO_OVERLAYS="$(jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "rro-overlays" "$CONFIG_FILE")"
-readonly DEP_DSO_BLOBS_LIST="$(jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "dep-dso" "$CONFIG_FILE" | grep -Ev '(^#|^$)')"
-readonly MK_FLAGS_LIST="$(jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "BoardConfigVendor" "$CONFIG_FILE")"
-readonly DEVICE_VENDOR_CONFIG="$(jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "device-vendor" "$CONFIG_FILE")"
-readonly EXTRA_MODULES="$(jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "new-modules" "$CONFIG_FILE")"
-readonly FORCE_MODULES="$(jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "forced-modules" "$CONFIG_FILE")"
+readonly RRO_OVERLAYS="$(jqIncRawArray "$API_LEVEL" "rro-overlays" "$CONFIG_FILE")"
+readonly DEP_DSO_BLOBS_LIST="$(jqIncRawArray "$API_LEVEL" "dep-dso" "$CONFIG_FILE" | grep -Ev '(^#|^$)')"
+readonly MK_FLAGS_LIST="$(jqIncRawArray "$API_LEVEL" "BoardConfigVendor" "$CONFIG_FILE")"
+readonly DEVICE_VENDOR_CONFIG="$(jqIncRawArray "$API_LEVEL" "device-vendor" "$CONFIG_FILE")"
+readonly EXTRA_MODULES="$(jqIncRawArray "$API_LEVEL" "new-modules" "$CONFIG_FILE")"
+readonly FORCE_MODULES="$(jqIncRawArray "$API_LEVEL" "forced-modules" "$CONFIG_FILE")"
 readonly EXTRA_IMGS_LIST="$(jqIncRawArrayTop "extra-partitions" "$CONFIG_FILE")"
 readonly OTA_IMGS_LIST="$(jqIncRawArrayTop "ota-partitions" "$CONFIG_FILE")"
 

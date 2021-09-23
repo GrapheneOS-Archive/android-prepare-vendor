@@ -24,7 +24,6 @@
   "BoardConfigVendorMk": "crosshatch/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "crosshatch/proprietary/device-vendor.mk",
   "api-30": {
-    "naked": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "system-bytecode": [
@@ -589,6 +588,5 @@
         "odm/etc/vintf/manifest_G013C.xml",
         "odm/etc/vintf/manifest_G013D.xml"
       ]
-    }
   }
 }

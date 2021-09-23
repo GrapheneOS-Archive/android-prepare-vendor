@@ -62,7 +62,7 @@ declare -ra VENDOR_SKIP_FILES=(
   "overlay/HbmSVManager__auto_generated_rro_vendor.apk"
 )
 
-# Files to skip from vendor partition when parsing factory images (for naked config only)
+# Files to skip from vendor partition when parsing factory images
 declare -ra VENDOR_SKIP_FILES_NAKED=(
   "etc/selinux/nonplat_file_contexts"
   "etc/selinux/nonplat_hwservice_contexts"

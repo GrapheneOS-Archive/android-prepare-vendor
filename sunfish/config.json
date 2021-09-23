@@ -23,7 +23,6 @@
   "BoardConfigVendorMk": "sunfish/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "sunfish/proprietary/device-vendor.mk",
   "api-30": {
-    "naked": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "product-bytecode": [],
@@ -559,6 +558,5 @@
         "odm/etc/group",
         "odm/etc/passwd"
       ]
-    }
   }
 }

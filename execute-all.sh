@@ -68,7 +68,6 @@ cat <<_EOF
       -i|--img <path>    : [OPTIONAL] Read factory image archive from file instead of downloading
       -O|--ota <path>    : [OPTIONAL] Read OTA image archive from file instead of downloading
       -j|--java <path    : [OPTIONAL] Java path to use instead of system auto detected global version
-      -f|--full    : [OPTIONAL] Use config with all non-essential OEM blobs to be compatible with GApps (default: false)
       -k|--keep    : [OPTIONAL] Keep all extracted factory images & repaired data (default: false)
       -s|--skip    : [OPTIONAL] Skip /system bytecode repairing (default: false)
       -y|--yes     : [OPTIONAL] Auto accept Google ToS when downloading Nexus factory images (default: false)
@@ -83,8 +82,6 @@ cat <<_EOF
       --timestamp  : [OPTIONAL] Timestamp to use for all extracted bytecode files (seconds since Epoch)
 
     INFO:
-      * Default configuration is naked. Use "-f|--full" if you plan to install Google Play Services
-        or you have issues with some carriers
       * Default bytecode de-optimization repair choise is based on most stable/heavily-tested method.
         If you need to change the defaults, you can select manually.
       * Linux system can use the ext4fuse, fuse-ext2 or debugfs to extract data from ext4 images
@@ -312,7 +309,6 @@ KEEP_DATA=false
 API_LEVEL=""
 SKIP_SYSDEOPT=false
 FACTORY_IMGS_DATA=""
-CONFIG_TYPE="naked"
 CONFIG_FILE=""
 USER_JAVA_PATH=""
 AUTO_TOS_ACCEPT=true
@@ -359,9 +355,6 @@ do
     -O|--ota)
       INPUT_OTA="$(_realpath "$2")"
       shift
-      ;;
-    -f|--full)
-      CONFIG_TYPE="full"
       ;;
     -k|--keep)
       KEEP_DATA=true
@@ -594,14 +587,13 @@ check_supported_api
 ART_API_LEVEL="$API_LEVEL"
 
 
-echo "[*] Processing with 'API-$API_LEVEL $CONFIG_TYPE' configuration"
+echo "[*] Processing with 'API-$API_LEVEL' configuration"
 
 # Generate unified readonly "proprietary-blobs.txt"
 $GEN_BLOBS_LIST_SCRIPT --input "$FACTORY_IMGS_DATA/vendor" \
     --output "$SCRIPTS_ROOT/$DEVICE" \
     --api "$API_LEVEL" \
-    --conf-file "$CONFIG_FILE" \
-    --conf-type "$CONFIG_TYPE" || {
+    --conf-file "$CONFIG_FILE" || {
   echo "[-] 'proprietary-blobs.txt' generation failed"
   abort 1
 }
@@ -686,9 +678,9 @@ FORCE_PREOPT=false
 # If deodex all not set provide a list of packages to repair
 if [ $DEODEX_ALL = false ]; then
   BYTECODE_LIST="$TMP_WORK_DIR/bytecode_list.txt"
-  jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "system-bytecode" "$CONFIG_FILE" > "$BYTECODE_LIST"
-  jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "product-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
-  jqIncRawArray "$API_LEVEL" "$CONFIG_TYPE" "system_ext-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
+  jqIncRawArray "$API_LEVEL" "system-bytecode" "$CONFIG_FILE" > "$BYTECODE_LIST"
+  jqIncRawArray "$API_LEVEL" "product-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
+  jqIncRawArray "$API_LEVEL" "system_ext-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
   REPAIR_SCRIPT_ARG+=( --bytecode-list "$BYTECODE_LIST")
 fi
 
@@ -750,7 +742,7 @@ $EXTRACT_CARRIER_SETTINGS_SCRIPT --carrierlist "$aospCarrierListFolder" \
   abort 1
 }
 
-VGEN_SCRIPT_EXTRA_ARGS=(--conf-type "$CONFIG_TYPE")
+VGEN_SCRIPT_EXTRA_ARGS=()
 if [ $FORCE_PREOPT = true ]; then
   VGEN_SCRIPT_EXTRA_ARGS+=( --allow-preopt)
 fi

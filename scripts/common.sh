@@ -56,14 +56,6 @@ isValidApiLevel() {
   fi
 }
 
-isValidConfigType() {
-  local confType="$1"
-  if [[ "$confType" != "naked" && "$confType" != "full" ]]; then
-    echo "[-] Invalid config type '$confType'"
-    abort 1
-  fi
-}
-
 jqRawStrTop() {
   local query="$1"
   local conf_file="$2"
@@ -86,11 +78,10 @@ jqIncRawArrayTop() {
 
 jqRawStr() {
   local api="api-$1"
-  local conf="$2"
-  local query="$3"
-  local conf_file="$4"
+  local query="$2"
+  local conf_file="$3"
 
-  jq -r ".\"$api\".\"$conf\".\"$query\"" "$conf_file" || {
+  jq -r ".\"$api\".\"$query\"" "$conf_file" || {
     echo "[-] json raw string parse failed" >&2
     abort 1
   }
@@ -98,22 +89,13 @@ jqRawStr() {
 
 jqIncRawArray() {
   local api="api-$1"
-  local conf="$2"
-  local query="$3"
-  local conf_file="$4"
+  local query="$2"
+  local conf_file="$3"
 
-  jq -r ".\"$api\".naked.\"$query\"[]" "$conf_file" || {
+  jq -r ".\"$api\".\"$query\"[]" "$conf_file" || {
     echo "[-] json raw string array parse failed" >&2
     abort 1
   }
 
-  if [[ "$conf" == "naked" ]]; then
-    return
-  fi
-
-  jq -r ".\"$api\".full.\"$query\"[]" "$conf_file" || {
-    echo "[-] json raw string array parse failed" >&2
-    abort 1
-  }
-
+  return
 }
