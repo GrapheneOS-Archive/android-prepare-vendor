@@ -25,7 +25,6 @@ cat <<_EOF
       -i|--input  : Root path of /vendor partition
       -o|--output : Path to save generated "proprietary-blobs.txt" file
       --conf-file : Device configuration file
-      --api       : API level
 _EOF
   abort 1
 }
@@ -60,7 +59,6 @@ done
 INPUT_DIR=""
 OUTPUT_DIR=""
 CONFIG_FILE=""
-API_LEVEL=""
 
 while [[ $# -gt 1 ]]
 do
@@ -78,10 +76,6 @@ do
       CONFIG_FILE="$2"
       shift
       ;;
-    --api)
-      API_LEVEL="$2"
-      shift
-      ;;
     *)
       echo "[-] Invalid argument '$1'"
       usage
@@ -94,9 +88,6 @@ done
 check_dir "$INPUT_DIR" "Input"
 check_dir "$OUTPUT_DIR" "Output"
 check_file "$CONFIG_FILE" "Device Config File"
-
-# Check if valid config type & API level
-isValidApiLevel "$API_LEVEL"
 
 # Verify input directory structure
 verify_input "$INPUT_DIR"
@@ -121,8 +112,8 @@ do
     continue
   fi
 
-  # Skip vendor files for specific APIs if they are defined
-  readarray -t vendorSkipFiles < <(jqIncRawArray "$API_LEVEL" "vendor-skip-files" "$CONFIG_FILE")
+  # Skip vendor files if they are defined
+  readarray -t vendorSkipFiles < <(jqIncRawArray "vendor-skip-files" "$CONFIG_FILE")
   if array_contains "$FILE" "${vendorSkipFiles[@]}"; then
     continue
   fi
@@ -132,21 +123,21 @@ done
 
 {
   # Then append system-proprietary-blobs
-  jqIncRawArray "$API_LEVEL" "system-other" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "system-other" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
 
   # Then append dep-dso-proprietary-blobs
-  jqIncRawArray "$API_LEVEL" "dep-dso" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "dep-dso" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
 
   # Then append bytecode-proprietary
-  jqIncRawArray "$API_LEVEL" "system-bytecode" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "system-bytecode" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
 
   # Then append product
-  jqIncRawArray "$API_LEVEL" "product-other" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
-  jqIncRawArray "$API_LEVEL" "product-bytecode" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "product-other" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "product-bytecode" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
 
   # Then append system_ext
-  jqIncRawArray "$API_LEVEL" "system_ext-other" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
-  jqIncRawArray "$API_LEVEL" "system_ext-bytecode" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "system_ext-other" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
+  jqIncRawArray "system_ext-bytecode" "$CONFIG_FILE" | grep -Ev '(^#|^$)' || true
 } >> "$OUT_BLOBS_FILE_TMP"
 
 # Sort merged file with all lists

@@ -4,7 +4,6 @@
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "sunfish",
-  "supported-apis": ["api-30"],
   "extra-partitions": [],
   "ota-partitions": [
     "abl",
@@ -22,7 +21,6 @@
   "AndroidMk": "sunfish/Android.mk",
   "BoardConfigVendorMk": "sunfish/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "sunfish/proprietary/device-vendor.mk",
-  "api-30": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "product-bytecode": [],
@@ -558,5 +556,4 @@
         "odm/etc/group",
         "odm/etc/passwd"
       ]
-  }
 }

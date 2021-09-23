@@ -4,7 +4,6 @@
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "bramble",
-  "supported-apis": ["api-30"],
   "extra-partitions": [],
   "ota-partitions": [
     "abl",
@@ -23,7 +22,6 @@
   "AndroidMk": "bramble/Android.mk",
   "BoardConfigVendorMk": "bramble/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "bramble/proprietary/device-vendor.mk",
-  "api-30": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "product-bytecode": [],
@@ -986,5 +984,4 @@
         "odm/etc/passwd",
         "overlay/SecureElement__auto_generated_rro_vendor.apk"
       ]
-  }
 }

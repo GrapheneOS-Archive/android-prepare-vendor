@@ -21,12 +21,9 @@ readonly NID_URL="https://google.com"
 readonly GURL="https://developers.google.com/android/images"
 readonly GURL2="https://developers.google.com/android/ota"
 
-# oatdump dependencies URLs as compiled from AOSP matching API levels
-readonly L_OATDUMP_URL_API30='https://onedrive.live.com/download?cid=D1FAC8CC6BE2C2B0&resid=D1FAC8CC6BE2C2B0%21574&authkey=ADSQA_DtfAmmk2c'
-readonly D_OATDUMP_URL_API30='https://onedrive.live.com/download?cid=D1FAC8CC6BE2C2B0&resid=D1FAC8CC6BE2C2B0%21582&authkey=ABMMORAJ-GGjs2k'
-
-readonly L_OATDUMP_API30_SIG='394a47491de4def3b825b22713f5ecfd8f16e00497f35213ffd83c2cc709384e'
-readonly D_OATDUMP_API30_SIG='95ce6c296c5115861db3c876eb5bfd11cdc34deebace18462275368492c6ea87'
+# oatdump dependencies URLs as compiled from AOSP (TODO -- REMOVE THIS ASAP)
+readonly THIRDPARTYDOWNLOAD_URL='https://onedrive.live.com/download?cid=D1FAC8CC6BE2C2B0&resid=D1FAC8CC6BE2C2B0%21574&authkey=ADSQA_DtfAmmk2c'
+readonly THIRDPARTYDOWNLOAD_SIG='394a47491de4def3b825b22713f5ecfd8f16e00497f35213ffd83c2cc709384e'
 
 # sub-directories that contain bytecode archives
 declare -ra SUBDIRS_WITH_BC=("app" "framework" "priv-app" "overlay" "product/app" "product/framework" "product/priv-app" "system_ext/app" "system_ext/framework" "system_ext/priv-app")

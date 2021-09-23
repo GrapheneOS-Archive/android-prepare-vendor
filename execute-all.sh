@@ -125,32 +125,29 @@ unmount_raw_image() {
 }
 
 oatdump_deps_download() {
-  local api_level="$1"
-
   local download_url
-  local out_file="$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level/oatdump_deps.zip"
+  local out_file="$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/oatdump_deps.zip"
   mkdir -p "$(dirname "$out_file")"
 
-download_url="L_OATDUMP_URL_API$api_level"
+download_url="THIRDPARTYDOWNLOAD_URL"
 
   curl -L -o "$out_file" "${!download_url}" || {
     echo "[-] oatdump dependencies download failed"
     abort 1
   }
 
-  bsdtar xf "$out_file" -C "$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level" || {
+  bsdtar xf "$out_file" -C "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload" || {
     echo "[-] oatdump dependencies extraction failed"
     abort 1
   }
 }
 
 needs_oatdump_update() {
-  local api_level="$1"
   local deps_zip deps_cur_sig deps_latest_sig
 
-  deps_zip="$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level/oatdump_deps.zip"
+  deps_zip="$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/oatdump_deps.zip"
   deps_cur_sig=$(shasum -a256 "$deps_zip" | cut -d ' ' -f1)
-  deps_latest_sig="L_OATDUMP_API$api_level""_SIG"
+  deps_latest_sig="THIRDPARTYDOWNLOAD_SIG"
 
   if [[ "${!deps_latest_sig}" == "$deps_cur_sig" ]]; then
     return 1
@@ -160,15 +157,14 @@ needs_oatdump_update() {
 }
 
 oatdump_prepare_env() {
-  local api_level="$1"
-  if [ ! -f "$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level/bin/oatdump" ]; then
+  if [ ! -f "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/bin/oatdump" ]; then
     echo "[*] First run detected - downloading oatdump host bin & lib dependencies"
-    oatdump_deps_download "$api_level"
+    oatdump_deps_download
   fi
 
-  if needs_oatdump_update "$api_level"; then
+  if needs_oatdump_update; then
     echo "[*] Outdated version detected - downloading oatdump host bin & lib dependencies"
-    oatdump_deps_download "$api_level"
+    oatdump_deps_download
   fi
 }
 
@@ -270,15 +266,6 @@ check_supported_device() {
   fi
 }
 
-check_supported_api() {
-  readarray -t supportedAPIs < <(jq -r '."supported-apis"[]' "$CONFIG_FILE")
-  if array_contains "api-$API_LEVEL" "${supportedAPIs[@]}"; then
-    return
-  fi
-  echo "[-] api-$API_LEVEL is not supported for $DEVICE device"
-  abort 1
-}
-
 is_valid_date() {
   local _tstamp="$1"
   local _date=""
@@ -306,7 +293,6 @@ OUTPUT_DIR=""
 INPUT_IMG=""
 INPUT_OTA=""
 KEEP_DATA=false
-API_LEVEL=""
 SKIP_SYSDEOPT=false
 FACTORY_IMGS_DATA=""
 CONFIG_FILE=""
@@ -442,7 +428,7 @@ update_java_path
 # Check if supported device
 check_supported_device
 
-# Check supported API for device
+# Specify device configuration json
 CONFIG_FILE="$SCRIPTS_ROOT/$DEVICE/config.json"
 
 # Prepare output dir structure
@@ -575,24 +561,11 @@ if [[ -d "$FACTORY_IMGS_DATA/system/system" && -f "$FACTORY_IMGS_DATA/system/sys
   SYSTEM_ROOT="$FACTORY_IMGS_DATA/system/system"
 fi
 
-# Extract API level from 'ro.build.version.sdk' field of system/build.prop
-API_LEVEL=$(grep 'ro.build.version.sdk' "$SYSTEM_ROOT/build.prop" |
-            cut -d '=' -f2 | tr '[:upper:]' '[:lower:]' || true)
-if [[ "$API_LEVEL" == "" ]]; then
-  echo "[-] Failed to extract API level from build.prop"
-  abort 1
-fi
-check_supported_api
-
-ART_API_LEVEL="$API_LEVEL"
-
-
-echo "[*] Processing with 'API-$API_LEVEL' configuration"
+echo "[*] Processing configuration"
 
 # Generate unified readonly "proprietary-blobs.txt"
 $GEN_BLOBS_LIST_SCRIPT --input "$FACTORY_IMGS_DATA/vendor" \
     --output "$SCRIPTS_ROOT/$DEVICE" \
-    --api "$API_LEVEL" \
     --conf-file "$CONFIG_FILE" || {
   echo "[-] 'proprietary-blobs.txt' generation failed"
   abort 1
@@ -615,17 +588,12 @@ elif [ $FORCE_SMALIEX = true ]; then
 elif [ $FORCE_OATDUMP = true ]; then
   BYTECODE_REPAIR_METHOD="OATDUMP"
 else
-  # Default choices based on API level
-  if [ "$API_LEVEL" -le 23 ]; then
-    BYTECODE_REPAIR_METHOD="OAT2DEX"
-  elif [ "$API_LEVEL" -ge 24 ]; then
-    BYTECODE_REPAIR_METHOD="OATDUMP"
-  fi
+  BYTECODE_REPAIR_METHOD="OATDUMP"
 fi
 
 # OAT2DEX method is based on SmaliEx which is deprecated
-if [[ "$BYTECODE_REPAIR_METHOD" == "OAT2DEX" && $API_LEVEL -ge 24 ]]; then
-  echo "[-] SmaliEx OAT2DEX bytecode repair method is deprecated & not supporting API >= 24"
+if [[ "$BYTECODE_REPAIR_METHOD" == "OAT2DEX" ]]; then
+  echo "[-] SmaliEx OAT2DEX bytecode repair method is unsupported"
   abort 1
 fi
 
@@ -635,20 +603,13 @@ case $BYTECODE_REPAIR_METHOD in
     REPAIR_SCRIPT_ARG=()
     ;;
   "OATDUMP")
-    oatdump_prepare_env "$ART_API_LEVEL"
-    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$ART_API_LEVEL/bin/oatdump")
+    oatdump_prepare_env
+    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/bin/oatdump")
 
     # dex2oat is invoked from host with aggressive verifier flags. So there is a
     # high chance it will fail to preoptimize bytecode repaired with oatdump method.
     # Let the user know.
-    if [ "$API_LEVEL" -ge 26 ]; then
-      # LOCAL_DEX_PREOPT can be safely used due to the unquicken patch added to oatdump
-      FORCE_PREOPT=true
-    else
-      if [ $FORCE_PREOPT = true ]; then
-        echo "[!] AOSP builds might fail when LOCAL_DEX_PREOPT isn't false when using OATDUMP bytecode repair method"
-      fi
-    fi
+    FORCE_PREOPT=true
     ;;
   "OAT2DEX")
     checkJava
@@ -659,8 +620,8 @@ case $BYTECODE_REPAIR_METHOD in
     ;;
   "SMALIDEODEX")
     checkJava
-    oatdump_prepare_env "$ART_API_LEVEL"
-    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$ART_API_LEVEL/bin/oatdump")
+    oatdump_prepare_env
+    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/bin/oatdump")
     REPAIR_SCRIPT_ARG+=( --smali "$SCRIPTS_ROOT/hostTools/Java/smali.jar")
     REPAIR_SCRIPT_ARG+=( --baksmali "$SCRIPTS_ROOT/hostTools/Java/baksmali.jar")
 
@@ -678,9 +639,9 @@ FORCE_PREOPT=false
 # If deodex all not set provide a list of packages to repair
 if [ $DEODEX_ALL = false ]; then
   BYTECODE_LIST="$TMP_WORK_DIR/bytecode_list.txt"
-  jqIncRawArray "$API_LEVEL" "system-bytecode" "$CONFIG_FILE" > "$BYTECODE_LIST"
-  jqIncRawArray "$API_LEVEL" "product-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
-  jqIncRawArray "$API_LEVEL" "system_ext-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
+  jqIncRawArray "system-bytecode" "$CONFIG_FILE" > "$BYTECODE_LIST"
+  jqIncRawArray "product-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
+  jqIncRawArray "system_ext-bytecode" "$CONFIG_FILE" >> "$BYTECODE_LIST"
   REPAIR_SCRIPT_ARG+=( --bytecode-list "$BYTECODE_LIST")
 fi
 
@@ -755,7 +716,6 @@ fi
 
 $VGEN_SCRIPT --input "$FACTORY_IMGS_R_DATA" \
   --output "$OUT_BASE" \
-  --api "$API_LEVEL" \
   --conf-file "$CONFIG_FILE" \
   "${VGEN_SCRIPT_EXTRA_ARGS[@]}" || {
   echo "[-] Vendor generation failed"

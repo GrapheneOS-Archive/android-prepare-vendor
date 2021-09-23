@@ -48,14 +48,6 @@ array_contains_rel() {
   return 1
 }
 
-isValidApiLevel() {
-  local apiLevel="$1"
-  if [[ ! "$apiLevel" = *[[:digit:]]* ]]; then
-    echo "[-] Invalid API level '$apiLevel'"
-    abort 1
-  fi
-}
-
 jqRawStrTop() {
   local query="$1"
   local conf_file="$2"
@@ -77,22 +69,20 @@ jqIncRawArrayTop() {
 }
 
 jqRawStr() {
-  local api="api-$1"
-  local query="$2"
-  local conf_file="$3"
+  local query="$1"
+  local conf_file="$2"
 
-  jq -r ".\"$api\".\"$query\"" "$conf_file" || {
+  jq -r ".\"$query\"" "$conf_file" || {
     echo "[-] json raw string parse failed" >&2
     abort 1
   }
 }
 
 jqIncRawArray() {
-  local api="api-$1"
-  local query="$2"
-  local conf_file="$3"
+  local query="$1"
+  local conf_file="$2"
 
-  jq -r ".\"$api\".\"$query\"[]" "$conf_file" || {
+  jq -r ".\"$query\"[]" "$conf_file" || {
     echo "[-] json raw string array parse failed" >&2
     abort 1
   }

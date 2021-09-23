@@ -4,7 +4,6 @@
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "crosshatch",
-  "supported-apis": ["api-30"],
   "extra-partitions": [],
   "ota-partitions": [
     "abl",
@@ -23,7 +22,6 @@
   "AndroidMk": "crosshatch/Android.mk",
   "BoardConfigVendorMk": "crosshatch/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "crosshatch/proprietary/device-vendor.mk",
-  "api-30": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "system-bytecode": [
@@ -588,5 +586,4 @@
         "odm/etc/vintf/manifest_G013C.xml",
         "odm/etc/vintf/manifest_G013D.xml"
       ]
-  }
 }

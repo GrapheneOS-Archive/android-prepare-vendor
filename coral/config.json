@@ -4,7 +4,6 @@
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "coral",
-  "supported-apis": ["api-30"],
   "extra-partitions": [],
   "ota-partitions": [
     "abl",
@@ -22,7 +21,6 @@
   "AndroidMk": "coral/Android.mk",
   "BoardConfigVendorMk": "coral/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "coral/proprietary/device-vendor.mk",
-  "api-30": {
       "overlays-dir": "",
       "rro-overlays": ["CarrierConfigOverlay"],
       "product-bytecode": [],
@@ -560,5 +558,4 @@
         "odm/etc/group",
         "odm/etc/passwd"
       ]
-  }
 }
