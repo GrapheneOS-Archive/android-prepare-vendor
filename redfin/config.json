@@ -1,7 +1,6 @@
 {
   "device-name": "pixel5",
   "device-model": "redfin",
-  "device-aliases": [],
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "redfin",

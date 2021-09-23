@@ -1,7 +1,6 @@
 {
   "device-name": "pixel3-xl",
   "device-model": "crosshatch",
-  "device-aliases": [],
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "crosshatch",

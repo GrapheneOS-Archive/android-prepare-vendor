@@ -1,7 +1,6 @@
 {
   "device-name": "pixel4-xl",
   "device-model": "coral",
-  "device-aliases": [],
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "coral",

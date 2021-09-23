@@ -1,7 +1,6 @@
 {
   "device-name": "pixel4a",
   "device-model": "sunfish",
-  "device-aliases": [],
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "sunfish",

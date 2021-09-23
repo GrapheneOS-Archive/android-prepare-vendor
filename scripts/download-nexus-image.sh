@@ -22,7 +22,6 @@ cat <<_EOF
   Usage: $(basename "$0") [options]
     OPTIONS:
       -d|--device  : Device AOSP codename (angler, bullhead, etc.)
-      -a|--alias   : Device alias at Google Dev website (e.g. volantis vs flounder)
       -b|--buildID : BuildID string (e.g. MMB29P)
       -o|--output  : Path to save images archived
       -y|--yes     : Default accept Google ToS
@@ -80,7 +79,6 @@ do
 done
 
 DEVICE=""
-DEV_ALIAS=""
 BUILDID=""
 OUTPUT_DIR=""
 AUTO_TOS_ACCEPT=false
@@ -96,10 +94,6 @@ do
       ;;
     -d|--device)
       DEVICE=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-      shift
-      ;;
-    -a|--alias)
-      DEV_ALIAS=$(echo "$2" | tr '[:upper:]' '[:lower:]')
       shift
       ;;
     -b|--buildID)
@@ -133,12 +127,6 @@ if [[ "$OUTPUT_DIR" == "" || ! -d "$OUTPUT_DIR" ]]; then
   usage
 fi
 
-# If alias not provided assume same as device codename for simplicity.
-# If wrong choice, later scripts will fail to find blobs list file.
-if [[ "$DEV_ALIAS" == "" ]]; then
-  DEV_ALIAS="$DEVICE"
-fi
-
 # Since ToS is bind with NID cookie, first get one
 COOKIE_FILE="$TMP_WORK_DIR/g_cookies.txt"
 curl --silent -c "$COOKIE_FILE" -L "$NID_URL" &>/dev/null
@@ -158,10 +146,10 @@ accept_tos
 # Then retrieve the index page
 if [ "$OTA" = true ]; then
   url=$(curl -L -b "$COOKIE_FILE" --cookie "devsite_wall_acks=nexus-ota-tos" --silent "$GURL2" | \
-        grep -i "<a href=.*$DEV_ALIAS-ota-$BUILDID-" | cut -d '"' -f2)
+        grep -i "<a href=.*$DEVICE-ota-$BUILDID-" | cut -d '"' -f2)
 else
   url=$(curl -L -b "$COOKIE_FILE" --cookie "devsite_wall_acks=nexus-image-tos" --silent "$GURL" | \
-        grep -i "<a href=.*$DEV_ALIAS-$BUILDID-" | cut -d '"' -f2)
+        grep -i "<a href=.*$DEVICE-$BUILDID-" | cut -d '"' -f2)
 fi
 if [ "$url" == "" ]; then
   echo "[-] URL not found"

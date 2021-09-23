@@ -1,7 +1,6 @@
 {
   "device-name": "pixel5a",
   "device-model": "barbet",
-  "device-aliases": [],
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "barbet",

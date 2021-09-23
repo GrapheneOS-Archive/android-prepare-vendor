@@ -63,7 +63,6 @@ cat <<_EOF
   Usage: $(basename "$0") [options]
     OPTIONS:
       -d|--device <name> : Device codename (angler, bullhead, etc.)
-      -a|--alias <alias> : Device alias (e.g. flounder volantis (WiFi) vs volantisg (LTE))
       -b|--buildID <id>  : BuildID string (e.g. MMB29P)
       -o|--output <path> : Path to save generated vendor data
       -i|--img <path>    : [OPTIONAL] Read factory image archive from file instead of downloading
@@ -310,7 +309,6 @@ OUTPUT_DIR=""
 INPUT_IMG=""
 INPUT_OTA=""
 KEEP_DATA=false
-DEV_ALIAS=""
 API_LEVEL=""
 SKIP_SYSDEOPT=false
 FACTORY_IMGS_DATA=""
@@ -348,10 +346,6 @@ do
       ;;
     -d|--device)
       DEVICE=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-      shift
-      ;;
-    -a|--alias)
-      DEV_ALIAS=$(echo "$2" | tr '[:upper:]' '[:lower:]')
       shift
       ;;
     -b|--buildID)
@@ -472,22 +466,18 @@ echo "[*] Setting output base to '$OUT_BASE'"
 factoryImgArchive=""
 if [[ "$INPUT_IMG" == "" ]]; then
 
-  if [[ "$DEV_ALIAS" == "" ]]; then
-    DEV_ALIAS="$DEVICE"
-  fi
-
   __extraArgs=""
   if [ $AUTO_TOS_ACCEPT = true ]; then
     __extraArgs="--yes"
   fi
 
- $DOWNLOAD_SCRIPT --device "$DEVICE" --alias "$DEV_ALIAS" \
+ $DOWNLOAD_SCRIPT --device "$DEVICE" \
        --buildID "$BUILDID" --output "$OUT_BASE" $__extraArgs || {
     echo "[-] Images download failed"
     abort 1
   }
-  factoryImgArchive="$(find "$OUT_BASE" -iname "*$DEV_ALIAS*$BUILDID-factory*.tgz" -or \
-                       -iname "*$DEV_ALIAS*$BUILDID-factory*.zip" | head -1)"
+  factoryImgArchive="$(find "$OUT_BASE" -iname "*$DEVICE*$BUILDID-factory*.tgz" -or \
+                       -iname "*$DEVICE*$BUILDID-factory*.zip" | head -1)"
 else
   factoryImgArchive="$INPUT_IMG"
 fi
@@ -501,22 +491,18 @@ if [ "$OTA" = true ]; then
 OtaArchive=""
 if [[ "$INPUT_OTA" == "" ]]; then
 
-  if [[ "$DEV_ALIAS" == "" ]]; then
-    DEV_ALIAS="$DEVICE"
-  fi
-
   __extraArgs=""
   if [ $AUTO_TOS_ACCEPT = true ]; then
     __extraArgs="--yes"
   fi
 
- $DOWNLOAD_SCRIPT --device "$DEVICE" --alias "$DEV_ALIAS" \
+ $DOWNLOAD_SCRIPT --device "$DEVICE" \
        --buildID "$BUILDID" --output "$OUT_BASE" $__extraArgs --ota || {
     echo "[-] OTA download failed"
     abort 1
   }
-  OtaArchive="$(find "$OUT_BASE" -iname "*$DEV_ALIAS*ota-$BUILDID*.tgz" -or \
-                       -iname "*$DEV_ALIAS*ota-$BUILDID*.zip" | head -1)"
+  OtaArchive="$(find "$OUT_BASE" -iname "*$DEVICE*ota-$BUILDID*.tgz" -or \
+                       -iname "*$DEVICE*ota-$BUILDID*.zip" | head -1)"
 else
   OtaArchive="$INPUT_OTA"
 fi

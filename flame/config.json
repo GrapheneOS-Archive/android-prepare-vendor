@@ -1,7 +1,6 @@
 {
   "device-name": "pixel4",
   "device-model": "flame",
-  "device-aliases": [],
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "coral",
