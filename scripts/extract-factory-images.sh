@@ -11,7 +11,7 @@ readonly SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly CONSTS_SCRIPT="$SCRIPTS_DIR/constants.sh"
 readonly COMMON_SCRIPT="$SCRIPTS_DIR/common.sh"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_img_extract.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("tar" "find" "unzip" "uname" "du" "stat" "tr" "cut" "simg2img")
+declare -a SYS_TOOLS=("find" "bsdtar" "uname" "du" "stat" "tr" "cut" "simg2img")
 
 abort() {
   # If debug keep work dir for bugs investigation
@@ -51,9 +51,9 @@ extract_archive() {
   archiveFile="$(basename "$in_archive")"
   local f_ext="${archiveFile##*.}"
   if [[ "$f_ext" == "tar" || "$f_ext" == "tar.gz" || "$f_ext" == "tgz" ]]; then
-    tar -xf "$in_archive" -C "$out_dir" || { echo "[-] tar extract failed"; abort 1; }
+    bsdtar xf "$in_archive" -C "$out_dir" || { echo "[-] tar extract failed"; abort 1; }
   elif [[ "$f_ext" == "zip" ]]; then
-    unzip -qq "$in_archive" -d "$out_dir" || { echo "[-] zip extract failed"; abort 1; }
+    bsdtar xf "$in_archive" -C "$out_dir" || { echo "[-] zip extract failed"; abort 1; }
   else
     echo "[-] Unknown archive format '$f_ext'"
     abort 1
@@ -296,9 +296,9 @@ if [[ -f "$extractDir/system.img" && -f "$extractDir/vendor.img" ]]; then
   fi
 else
   updateArch=$(find "$extractDir" -iname "image-*.zip" | head -n 1)
-  echo "[*] Unzipping '$(basename "$updateArch")'"
-  unzip -qq "$updateArch" -d "$extractDir/images" || {
-    echo "[-] unzip failed"
+  echo "[*] Extracting '$(basename "$updateArch")'"
+  mkdir -p "$extractDir/images" && bsdtar xf "$updateArch" -C "$extractDir/images" || {
+    echo "[-] extraction failed"
     abort 1
   }
   sysImg="$extractDir/images/system.img"

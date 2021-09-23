@@ -9,7 +9,7 @@ set -u # fail on undefined variable
 
 readonly SCRIPTS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_prepare_vendor.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("mkdir" "curl" "dirname" "date" "touch" "mount" "shasum" "unzip")
+declare -a SYS_TOOLS=("mkdir" "curl" "dirname" "date" "touch" "mount" "shasum" "bsdtar")
 readonly HOST_OS="$(uname -s)"
 
 # Realpath implementation in bash (required for macOS support)
@@ -142,8 +142,8 @@ download_url="L_OATDUMP_URL_API$api_level"
     abort 1
   }
 
-  unzip -qq -o "$out_file" -d "$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level" || {
-    echo "[-] oatdump dependencies unzip failed"
+  bsdtar xf "$out_file" -C "$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level" || {
+    echo "[-] oatdump dependencies extraction failed"
     abort 1
   }
 }
