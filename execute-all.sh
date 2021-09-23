@@ -9,7 +9,7 @@ set -u # fail on undefined variable
 
 readonly SCRIPTS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_prepare_vendor.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("mkdir" "curl" "dirname" "date" "touch" "mount" "shasum" "bsdtar")
+declare -a SYS_TOOLS=("mkdir" "curl" "dirname" "date" "touch" "shasum" "bsdtar")
 readonly HOST_OS="$(uname -s)"
 
 # Realpath implementation in bash (required for macOS support)
@@ -47,13 +47,6 @@ readonly VGEN_SCRIPT="$SCRIPTS_ROOT/scripts/generate-vendor.sh"
 readonly LC_BIN="$SCRIPTS_ROOT/hostTools/$HOST_OS/bin"
 
 abort() {
-  # Remove mount points in case of error
-  if [[ $1 -ne 0 && "$FACTORY_IMGS_DATA" != "" ]]; then
-    unmount_raw_image "$FACTORY_IMGS_DATA/system"
-    unmount_raw_image "$FACTORY_IMGS_DATA/vendor"
-    unmount_raw_image "$FACTORY_IMGS_DATA/product"
-    unmount_raw_image "$FACTORY_IMGS_DATA/system_ext"
-  fi
   rm -rf "$TMP_WORK_DIR"
   exit "$1"
 }
@@ -71,8 +64,6 @@ cat <<_EOF
       -k|--keep    : [OPTIONAL] Keep all extracted factory images & repaired data (default: false)
       -s|--skip    : [OPTIONAL] Skip /system bytecode repairing (default: false)
       -y|--yes     : [OPTIONAL] Auto accept Google ToS when downloading Nexus factory images (default: false)
-      --debugfs    : [OPTIONAL] Use debugfs (Linux only) instead of the default ext4fuse (default: false)
-      --fuse-ext2  : [OPTIONAL] Use fuse-ext2 (Linux only) instead of the default ext4fuse (default: false)
       --force-opt  : [OPTIONAL] Override LOCAL_DEX_PREOPT to always pre-optimize /system bytecode (default: false)
       --oatdump    : [OPTIONAL] Force use of oatdump method to revert pre-optimized bytecode
       --smali      : [OPTIONAL] Force use of smali/baksmali to revert pre-optimized bytecode
@@ -84,8 +75,6 @@ cat <<_EOF
     INFO:
       * Default bytecode de-optimization repair choise is based on most stable/heavily-tested method.
         If you need to change the defaults, you can select manually.
-      * Linux system can use the ext4fuse, fuse-ext2 or debugfs to extract data from ext4 images
-        without root. If script is run as root, loopback mount is used instead of fuses.
 _EOF
   abort 1
 }
@@ -110,17 +99,6 @@ check_compatible_system() {
   if [[ "$hostOS" != "Linux" ]]; then
     echo "[-] '$hostOS' OS is not supported"
     abort 1
-  fi
-}
-
-unmount_raw_image() {
-  local mount_point="$1"
-
-  if [[ -d "$mount_point" && "$USE_DEBUGFS" = false ]]; then
-    $_UMOUNT "$mount_point" || {
-      echo "[-] '$mount_point' unmount failed"
-      exit 1
-    }
   fi
 }
 
@@ -202,11 +180,6 @@ check_input_args() {
       echo "[-] Invalid java path"
       abort 1
     fi
-  fi
-
-  if [[ "$USE_DEBUGFS" = true && "$USE_FUSEEXT2" = true ]]; then
-    echo "[-] --debugfs & --fuse-ext2 cannot be used at the same time"
-    abort 1
   fi
 
   # Some business logic related checks
@@ -305,8 +278,6 @@ FORCE_SMALIEX=false
 BYTECODE_REPAIR_METHOD=""
 DEODEX_ALL=false
 AOSP_ROOT=""
-USE_DEBUGFS=true
-USE_FUSEEXT2=false
 FORCE_VIMG=false
 JAVA_FOUND=false
 TIMESTAMP=""
@@ -355,12 +326,6 @@ do
     -y|--yes)
       AUTO_TOS_ACCEPT=true
       ;;
-    --debugfs)
-      USE_DEBUGFS=true
-      ;;
-    --fuse-ext2)
-      USE_FUSEEXT2=true
-      ;;
     --force-opt)
       FORCE_PREOPT=true
       ;;
@@ -393,15 +358,6 @@ done
 
 # Check user input args
 check_input_args
-
-# Check if script is running as root to directly use loopback instead of fuses
-if [ "$EUID" -eq 0 ]; then
-  SYS_TOOLS+=("umount")
-  _UMOUNT="umount"
-elif [ "$USE_DEBUGFS" = false ]; then
-  SYS_TOOLS+=("fusermount")
-  _UMOUNT="fusermount -uz"
-fi
 
 # Check that system tools exist
 for i in "${SYS_TOOLS[@]}"
@@ -508,20 +464,6 @@ $DOWNLOAD_CARRIER_LIST_SCRIPT --output "$aospCarrierListFolder" || {
 
 # Clear old data if present & extract data from factory images
 if [ -d "$FACTORY_IMGS_DATA" ]; then
-  # Previous run might have been with --keep which keeps the mount-points. Check
-  # if mounted & unmount if so.
-  if mount | grep -q "$FACTORY_IMGS_DATA/system"; then
-    unmount_raw_image "$FACTORY_IMGS_DATA/system"
-  fi
-  if mount | grep -q "$FACTORY_IMGS_DATA/vendor"; then
-    unmount_raw_image "$FACTORY_IMGS_DATA/vendor"
-  fi
-  if mount | grep -q "$FACTORY_IMGS_DATA/product"; then
-    unmount_raw_image "$FACTORY_IMGS_DATA/product"
-  fi
-  if mount | grep -q "$FACTORY_IMGS_DATA/system_ext"; then
-    unmount_raw_image "$FACTORY_IMGS_DATA/system_ext"
-  fi
   rm -rf "${FACTORY_IMGS_DATA:?}"/*
 else
   mkdir -p "$FACTORY_IMGS_DATA"
@@ -534,12 +476,6 @@ else
 fi
 
 EXTRACT_SCRIPT_ARGS=(--input "$factoryImgArchive" --output "$FACTORY_IMGS_DATA")
-
-if [ "$USE_DEBUGFS" = true ]; then
-  EXTRACT_SCRIPT_ARGS+=( --debugfs)
-elif [ "$USE_FUSEEXT2" = true ]; then
-  EXTRACT_SCRIPT_ARGS+=( --fuse-ext2)
-fi
 
 $EXTRACT_SCRIPT "${EXTRACT_SCRIPT_ARGS[@]}" --conf-file "$CONFIG_FILE" || {
   echo "[-] Factory images data extract failed"
@@ -723,13 +659,6 @@ $VGEN_SCRIPT --input "$FACTORY_IMGS_R_DATA" \
 }
 
 if [ "$KEEP_DATA" = false ]; then
-  if [ "$USE_DEBUGFS" = false ]; then
-    # Mount points are present only when ext4fuse is used
-    unmount_raw_image "$FACTORY_IMGS_DATA/system"
-    unmount_raw_image "$FACTORY_IMGS_DATA/vendor"
-    unmount_raw_image "$FACTORY_IMGS_DATA/product"
-    unmount_raw_image "$FACTORY_IMGS_DATA/system_ext"
-  fi
   rm -rf "$FACTORY_IMGS_DATA"
   rm -rf "$FACTORY_IMGS_R_DATA"
   rm -rf "$OTA_DATA"
