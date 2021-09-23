@@ -9,6 +9,6 @@ clean:
 	protoc --python_out=. $<
 
 update_metadata.proto:
-	wget -qO- \
+	curl \
 	https://android.googlesource.com/platform/system/update_engine/+/refs/heads/master/update_metadata.proto?format=TEXT | \
 	base64 --decode > $@
