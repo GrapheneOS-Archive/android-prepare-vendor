@@ -12,7 +12,7 @@ readonly CONSTS_SCRIPT="$SCRIPTS_DIR/constants.sh"
 readonly COMMON_SCRIPT="$SCRIPTS_DIR/common.sh"
 readonly EXTRACT_PAYLOAD_SCRIPT="$SCRIPTS_DIR/extract_android_ota_payload/extract_android_ota_payload.py"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_img_extract.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("tar" "find" "unzip" "uname" "du" "stat" "tr" "cut")
+declare -a SYS_TOOLS=("find" "bsdtar" "uname" "du" "stat" "tr" "cut")
 
 abort() {
   # If debug keep work dir for bugs investigation
@@ -46,9 +46,9 @@ extract_archive() {
   archiveFile="$(basename "$in_archive")"
   local f_ext="${archiveFile##*.}"
   if [[ "$f_ext" == "tar" || "$f_ext" == "tar.gz" || "$f_ext" == "tgz" ]]; then
-    tar -xf "$in_archive" -C "$out_dir" || { echo "[-] tar extract failed"; abort 1; }
+    bsdtar xf "$in_archive" -C "$out_dir" || { echo "[-] tar extract failed"; abort 1; }
   elif [[ "$f_ext" == "zip" ]]; then
-    unzip -qq "$in_archive" -d "$out_dir" || { echo "[-] zip extract failed"; abort 1; }
+    bsdtar xf "$in_archive" -C "$out_dir" || { echo "[-] zip extract failed"; abort 1; }
   else
     echo "[-] Unknown archive format '$f_ext'"
     abort 1
