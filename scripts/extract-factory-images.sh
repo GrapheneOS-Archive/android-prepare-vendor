@@ -240,10 +240,6 @@ check_file "$CONFIG_FILE" "Device Config File"
 
 # Fetch required values from config
 readonly VENDOR="$(jqRawStrTop "vendor" "$CONFIG_FILE")"
-readonly EXTRA_IMGS_LIST="$(jqIncRawArrayTop "extra-partitions" "$CONFIG_FILE")"
-if [[ "$EXTRA_IMGS_LIST" != "" ]]; then
-  readarray -t EXTRA_IMGS < <(echo "$EXTRA_IMGS_LIST")
-fi
 
 # Prepare output folders
 SYSTEM_DATA_OUT="$OUTPUT_DIR/system"
@@ -397,17 +393,5 @@ mv "$bootloaderImg" "$RADIO_DATA_OUT/" || {
   echo "[-] Failed to copy bootloader image"
   abort 1
 }
-
-# For Pixel devices with AB partitions layout, copy additional images required for OTA
-if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
-  for img in "${EXTRA_IMGS[@]}"
-  do
-    if [ ! -f "$extractDir/images/$img.img" ]; then
-      echo "[-] Failed to locate '$img.img' in factory image"
-      abort 1
-    fi
-    mv "$extractDir/images/$img.img" "$RADIO_DATA_OUT/"
-  done
-fi
 
 abort 0

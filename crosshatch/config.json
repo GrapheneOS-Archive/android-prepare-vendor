@@ -4,7 +4,6 @@
   "vendor": "google",
   "aosp-vendor-dir": "google_devices",
   "device-family": "crosshatch",
-  "extra-partitions": [],
   "ota-partitions": [
     "abl",
     "aop",

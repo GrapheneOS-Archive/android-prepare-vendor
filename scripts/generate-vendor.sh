@@ -163,13 +163,6 @@ copy_radio_files() {
     abort 1
   }
 
-  if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
-    for img in "${EXTRA_IMGS[@]}"
-    do
-      cp "$inDir/radio/$img.img" "$outDir/radio/"
-    done
-  fi
-
   if [[ "$VENDOR" == "google" && "$OTA_IMGS_LIST" != "" ]]; then
     for img in "${OTA_IMGS[@]}"
     do
@@ -445,13 +438,6 @@ gen_board_vendor_mk() {
     echo "\$(call add-radio-file,radio/bootloader.img,version-bootloader)"
     if [[ "$RADIO_VER" != "" ]]; then
       echo "\$(call add-radio-file,radio/radio.img,version-baseband)"
-    fi
-
-    if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
-      for img in "${EXTRA_IMGS[@]}"
-      do
-        echo "\$(call add-radio-file,radio/$img.img)"
-      done
     fi
 
     if [[ "$VENDOR" == "google" && "$OTA_IMGS_LIST" != "" ]]; then
@@ -1092,10 +1078,6 @@ update_ab_ota_partitions() {
   {
     echo "# Partitions to add in AB OTA images"
     echo 'AB_OTA_PARTITIONS += vendor \'
-    for partition in "${EXTRA_IMGS[@]}"
-    do
-      echo "    $partition \\"
-    done
     for partition in "${OTA_IMGS[@]}"
     do
       echo "    $partition \\"
@@ -1271,7 +1253,6 @@ readonly MK_FLAGS_LIST="$(jqIncRawArray "BoardConfigVendor" "$CONFIG_FILE")"
 readonly DEVICE_VENDOR_CONFIG="$(jqIncRawArray "device-vendor" "$CONFIG_FILE")"
 readonly EXTRA_MODULES="$(jqIncRawArray "new-modules" "$CONFIG_FILE")"
 readonly FORCE_MODULES="$(jqIncRawArray "forced-modules" "$CONFIG_FILE")"
-readonly EXTRA_IMGS_LIST="$(jqIncRawArrayTop "extra-partitions" "$CONFIG_FILE")"
 readonly OTA_IMGS_LIST="$(jqIncRawArrayTop "ota-partitions" "$CONFIG_FILE")"
 
 # Populate the array with the APK that need to maintain their signature
@@ -1291,9 +1272,6 @@ VENDOR_DIR="$(jqRawStrTop "aosp-vendor-dir" "$CONFIG_FILE")"
 RADIO_VER=$(get_radio_ver "$INPUT_DIR/vendor/build.prop")
 BOOTLOADER_VER=$(get_bootloader_ver "$INPUT_DIR/vendor/build.prop")
 BUILD_ID=$(get_build_id "$INPUT_DIR/system/build.prop")
-if [[ "$EXTRA_IMGS_LIST" != "" ]]; then
-  readarray -t EXTRA_IMGS < <(echo "$EXTRA_IMGS_LIST")
-fi
 if [[ "$OTA_IMGS_LIST" != "" ]]; then
   readarray -t OTA_IMGS < <(echo "$OTA_IMGS_LIST")
 fi
