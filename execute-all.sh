@@ -10,7 +10,6 @@ set -u # fail on undefined variable
 readonly SCRIPTS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_prepare_vendor.XXXXXX) || exit 1
 declare -a SYS_TOOLS=("mkdir" "curl" "dirname" "date" "touch" "shasum" "bsdtar")
-readonly HOST_OS="$(uname -s)"
 
 # Realpath implementation in bash (required for macOS support)
 readonly REALPATH_SCRIPT="$SCRIPTS_ROOT/scripts/realpath.sh"
@@ -44,7 +43,7 @@ readonly REPAIR_SCRIPT="$SCRIPTS_ROOT/scripts/system-img-repair.sh"
 readonly VGEN_SCRIPT="$SCRIPTS_ROOT/scripts/generate-vendor.sh"
 
 # Directory with host specific binaries
-readonly LC_BIN="$SCRIPTS_ROOT/hostTools/$HOST_OS/bin"
+readonly LC_BIN="$SCRIPTS_ROOT/hostTools/Linux/bin"
 
 abort() {
   rm -rf "$TMP_WORK_DIR"
@@ -104,7 +103,7 @@ check_compatible_system() {
 
 oatdump_deps_download() {
   local download_url
-  local out_file="$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/oatdump_deps.zip"
+  local out_file="$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/oatdump_deps.zip"
   mkdir -p "$(dirname "$out_file")"
 
 download_url="THIRDPARTYDOWNLOAD_URL"
@@ -114,7 +113,7 @@ download_url="THIRDPARTYDOWNLOAD_URL"
     abort 1
   }
 
-  bsdtar xf "$out_file" -C "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload" || {
+  bsdtar xf "$out_file" -C "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload" || {
     echo "[-] oatdump dependencies extraction failed"
     abort 1
   }
@@ -123,7 +122,7 @@ download_url="THIRDPARTYDOWNLOAD_URL"
 needs_oatdump_update() {
   local deps_zip deps_cur_sig deps_latest_sig
 
-  deps_zip="$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/oatdump_deps.zip"
+  deps_zip="$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/oatdump_deps.zip"
   deps_cur_sig=$(shasum -a256 "$deps_zip" | cut -d ' ' -f1)
   deps_latest_sig="THIRDPARTYDOWNLOAD_SIG"
 
@@ -135,7 +134,7 @@ needs_oatdump_update() {
 }
 
 oatdump_prepare_env() {
-  if [ ! -f "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/bin/oatdump" ]; then
+  if [ ! -f "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/bin/oatdump" ]; then
     echo "[*] First run detected - downloading oatdump host bin & lib dependencies"
     oatdump_deps_download
   fi
@@ -540,7 +539,7 @@ case $BYTECODE_REPAIR_METHOD in
     ;;
   "OATDUMP")
     oatdump_prepare_env
-    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/bin/oatdump")
+    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/bin/oatdump")
 
     # dex2oat is invoked from host with aggressive verifier flags. So there is a
     # high chance it will fail to preoptimize bytecode repaired with oatdump method.
@@ -557,7 +556,7 @@ case $BYTECODE_REPAIR_METHOD in
   "SMALIDEODEX")
     checkJava
     oatdump_prepare_env
-    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/$HOST_OS/3rdpartydownload/bin/oatdump")
+    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/bin/oatdump")
     REPAIR_SCRIPT_ARG+=( --smali "$SCRIPTS_ROOT/hostTools/Java/smali.jar")
     REPAIR_SCRIPT_ARG+=( --baksmali "$SCRIPTS_ROOT/hostTools/Java/baksmali.jar")
 

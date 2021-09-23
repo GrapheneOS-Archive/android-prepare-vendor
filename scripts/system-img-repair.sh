@@ -63,10 +63,7 @@ stamp_file() {
 
 # Print RAM size memory warning when using smali jar tools
 check_ram_size() {
-  local host_os
   local ram_size
-
-  host_os=$(uname -s)
   ram_size=$(grep MemTotal /proc/meminfo | awk '{print $2}'  | awk '{$1=$1/(1024^2); print int($1);}')
 
   if [ "$ram_size" -le 2 ]; then
