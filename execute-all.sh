@@ -64,16 +64,11 @@ cat <<_EOF
       -s|--skip    : [OPTIONAL] Skip /system bytecode repairing (default: false)
       -y|--yes     : [OPTIONAL] Auto accept Google ToS when downloading Nexus factory images (default: false)
       --force-opt  : [OPTIONAL] Override LOCAL_DEX_PREOPT to always pre-optimize /system bytecode (default: false)
-      --oatdump    : [OPTIONAL] Force use of oatdump method to revert pre-optimized bytecode
-      --smali      : [OPTIONAL] Force use of smali/baksmali to revert pre-optimized bytecode
-      --smaliex    : [OPTIONAL] Force use of smaliEx to revert pre-optimized bytecode [DEPRECATED]
       --deodex-all : [OPTIONAL] De-optimize all packages under /system (default: false)
       --force-vimg : [OPTIONAL] Force factory extracted blobs under /vendor to be always used regardless AOSP definitions (default: false)
-      --timestamp  : [OPTIONAL] Timestamp to use for all extracted bytecode files (seconds since Epoch)
 
     INFO:
-      * Default bytecode de-optimization repair choise is based on most stable/heavily-tested method.
-        If you need to change the defaults, you can select manually.
+      * oatdump is used by default to deoptimize bytecode. Use --skip if such behaviour is undesired.
 _EOF
   abort 1
 }
@@ -101,47 +96,10 @@ check_compatible_system() {
   fi
 }
 
-oatdump_deps_download() {
-  local download_url
-  local out_file="$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/oatdump_deps.zip"
-  mkdir -p "$(dirname "$out_file")"
-
-download_url="THIRDPARTYDOWNLOAD_URL"
-
-  curl -L -o "$out_file" "${!download_url}" || {
-    echo "[-] oatdump dependencies download failed"
+check_for_oatdump() {
+  if [ ! -f "$SCRIPTS_ROOT/../out/host/linux-x86/bin/oatdump" ]; then
+    echo "[*] oatdump has not been compiled. This can be done with 'm oatdump' in your GrapheneOS tree."
     abort 1
-  }
-
-  bsdtar xf "$out_file" -C "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload" || {
-    echo "[-] oatdump dependencies extraction failed"
-    abort 1
-  }
-}
-
-needs_oatdump_update() {
-  local deps_zip deps_cur_sig deps_latest_sig
-
-  deps_zip="$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/oatdump_deps.zip"
-  deps_cur_sig=$(shasum -a256 "$deps_zip" | cut -d ' ' -f1)
-  deps_latest_sig="THIRDPARTYDOWNLOAD_SIG"
-
-  if [[ "${!deps_latest_sig}" == "$deps_cur_sig" ]]; then
-    return 1
-  else
-    return 0
-  fi
-}
-
-oatdump_prepare_env() {
-  if [ ! -f "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/bin/oatdump" ]; then
-    echo "[*] First run detected - downloading oatdump host bin & lib dependencies"
-    oatdump_deps_download
-  fi
-
-  if needs_oatdump_update; then
-    echo "[*] Outdated version detected - downloading oatdump host bin & lib dependencies"
-    oatdump_deps_download
   fi
 }
 
@@ -238,18 +196,6 @@ check_supported_device() {
   fi
 }
 
-is_valid_date() {
-  local _tstamp="$1"
-  local _date=""
-  _date=$(date -d @"$_tstamp" 2>/dev/null || date -r "$_tstamp" 2>/dev/null || echo "")
-  if [[ "$_date" != "" ]]; then
-    echo "[*] Using '$_date' timestamp for all the repaired bytecode entries"
-  else
-    echo "[-] '$1' is an invalid date. Should be seconds since Epoch"
-    abort 1
-  fi
-}
-
 trap "abort 1" SIGINT SIGTERM
 . "$REALPATH_SCRIPT"
 . "$CONSTS_SCRIPT"
@@ -271,15 +217,11 @@ CONFIG_FILE=""
 USER_JAVA_PATH=""
 AUTO_TOS_ACCEPT=true
 FORCE_PREOPT=false
-FORCE_SMALI=false
-FORCE_OATDUMP=false
-FORCE_SMALIEX=false
-BYTECODE_REPAIR_METHOD=""
+BYTECODE_REPAIR_METHOD="OATDUMP"
 DEODEX_ALL=false
 AOSP_ROOT=""
 FORCE_VIMG=false
 JAVA_FOUND=false
-TIMESTAMP=""
 OTA=false
 
 # Compatibility
@@ -328,24 +270,11 @@ do
     --force-opt)
       FORCE_PREOPT=true
       ;;
-    --smali)
-      FORCE_SMALI=true
-      ;;
-    --smaliex)
-      FORCE_SMALIEX=true
-      ;;
-    --oatdump)
-      FORCE_OATDUMP=true
-      ;;
     --deodex-all)
       DEODEX_ALL=true
       ;;
     --force-vimg)
       FORCE_VIMG=true
-      ;;
-    --timestamp)
-      TIMESTAMP="$2"
-      shift
       ;;
     *)
       echo "[-] Invalid argument '$1'"
@@ -516,51 +445,14 @@ fi
 # Set bytecode repair method based on user arguments
 if [ $SKIP_SYSDEOPT = true ]; then
   BYTECODE_REPAIR_METHOD="NONE"
-elif [ $FORCE_SMALI = true ]; then
-  BYTECODE_REPAIR_METHOD="SMALIDEODEX"
-elif [ $FORCE_SMALIEX = true ]; then
-  BYTECODE_REPAIR_METHOD="OAT2DEX"
-elif [ $FORCE_OATDUMP = true ]; then
-  BYTECODE_REPAIR_METHOD="OATDUMP"
-else
-  BYTECODE_REPAIR_METHOD="OATDUMP"
-fi
-
-# OAT2DEX method is based on SmaliEx which is deprecated
-if [[ "$BYTECODE_REPAIR_METHOD" == "OAT2DEX" ]]; then
-  echo "[-] SmaliEx OAT2DEX bytecode repair method is unsupported"
-  abort 1
 fi
 
 # Adjust arguments of system repair script based on chosen method
 case $BYTECODE_REPAIR_METHOD in
   "NONE")
-    REPAIR_SCRIPT_ARG=()
     ;;
   "OATDUMP")
-    oatdump_prepare_env
-    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/bin/oatdump")
-
-    # dex2oat is invoked from host with aggressive verifier flags. So there is a
-    # high chance it will fail to preoptimize bytecode repaired with oatdump method.
-    # Let the user know.
-    FORCE_PREOPT=true
-    ;;
-  "OAT2DEX")
-    checkJava
-    REPAIR_SCRIPT_ARG=(--oat2dex "$SCRIPTS_ROOT/hostTools/Java/oat2dex.jar")
-
-    # LOCAL_DEX_PREOPT can be safely used so enable globally for /system
-    FORCE_PREOPT=true
-    ;;
-  "SMALIDEODEX")
-    checkJava
-    oatdump_prepare_env
-    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/hostTools/Linux/3rdpartydownload/bin/oatdump")
-    REPAIR_SCRIPT_ARG+=( --smali "$SCRIPTS_ROOT/hostTools/Java/smali.jar")
-    REPAIR_SCRIPT_ARG+=( --baksmali "$SCRIPTS_ROOT/hostTools/Java/baksmali.jar")
-
-    # LOCAL_DEX_PREOPT can be safely used so enable globally for /system
+    REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/../out/host/linux-x86/bin/oatdump")
     FORCE_PREOPT=true
     ;;
   *)
@@ -580,11 +472,6 @@ if [ $DEODEX_ALL = false ]; then
   REPAIR_SCRIPT_ARG+=( --bytecode-list "$BYTECODE_LIST")
 fi
 
-# If a timestamp is set, pass it to repair script
-if [[ "$TIMESTAMP" != "" ]]; then
-  is_valid_date "$TIMESTAMP"
-  REPAIR_SCRIPT_ARG+=( --timestamp "$TIMESTAMP")
-fi
 
 $REPAIR_SCRIPT --method "$BYTECODE_REPAIR_METHOD" --input "$SYSTEM_ROOT" \
      --output "$FACTORY_IMGS_R_DATA" "${REPAIR_SCRIPT_ARG[@]}" || {
