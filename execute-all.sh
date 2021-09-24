@@ -59,16 +59,14 @@ cat <<_EOF
       -o|--output <path> : Path to save generated vendor data
       -i|--img <path>    : [OPTIONAL] Read factory image archive from file instead of downloading
       -O|--ota <path>    : [OPTIONAL] Read OTA image archive from file instead of downloading
+      -r|--repair        : [OPTIONAL] Repair bytecode with oatdump
       -j|--java <path    : [OPTIONAL] Java path to use instead of system auto detected global version
       -k|--keep    : [OPTIONAL] Keep all extracted factory images & repaired data (default: false)
-      -s|--skip    : [OPTIONAL] Skip /system bytecode repairing (default: false)
       -y|--yes     : [OPTIONAL] Auto accept Google ToS when downloading Nexus factory images (default: false)
       --force-opt  : [OPTIONAL] Override LOCAL_DEX_PREOPT to always pre-optimize /system bytecode (default: false)
       --deodex-all : [OPTIONAL] De-optimize all packages under /system (default: false)
       --force-vimg : [OPTIONAL] Force factory extracted blobs under /vendor to be always used regardless AOSP definitions (default: false)
 
-    INFO:
-      * oatdump is used by default to deoptimize bytecode. Use --skip if such behaviour is undesired.
 _EOF
   abort 1
 }
@@ -211,13 +209,12 @@ OUTPUT_DIR=""
 INPUT_IMG=""
 INPUT_OTA=""
 KEEP_DATA=false
-SKIP_SYSDEOPT=false
 FACTORY_IMGS_DATA=""
 CONFIG_FILE=""
 USER_JAVA_PATH=""
 AUTO_TOS_ACCEPT=true
 FORCE_PREOPT=false
-BYTECODE_REPAIR_METHOD="OATDUMP"
+BYTECODE_REPAIR_METHOD="NONE"
 DEODEX_ALL=false
 AOSP_ROOT=""
 FORCE_VIMG=false
@@ -257,8 +254,8 @@ do
     -k|--keep)
       KEEP_DATA=true
       ;;
-    -s|--skip)
-      SKIP_SYSDEOPT=true
+    -r|--repair)
+      BYTECODE_REPAIR_METHOD="OATDUMP"
       ;;
     -j|--java)
       USER_JAVA_PATH="$(_realpath "$2")"
@@ -440,11 +437,6 @@ if [ -d "$FACTORY_IMGS_R_DATA" ]; then
   rm -rf "${FACTORY_IMGS_R_DATA:?}"/*
 else
   mkdir -p "$FACTORY_IMGS_R_DATA"
-fi
-
-# Set bytecode repair method based on user arguments
-if [ $SKIP_SYSDEOPT = true ]; then
-  BYTECODE_REPAIR_METHOD="NONE"
 fi
 
 # Adjust arguments of system repair script based on chosen method
