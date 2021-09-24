@@ -12,7 +12,7 @@ readonly CONSTS_SCRIPT="$SCRIPTS_DIR/constants.sh"
 readonly COMMON_SCRIPT="$SCRIPTS_DIR/common.sh"
 readonly EXTRACT_PAYLOAD_SCRIPT="$SCRIPTS_DIR/extract_android_ota_payload/extract_android_ota_payload.py"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_img_extract.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("find" "bsdtar" "uname" "du" "stat" "tr" "cut")
+declare -a SYS_TOOLS=("find" "bsdtar" "uname" "du" "stat" "tr" "cut" "jq")
 
 abort() {
   # If debug keep work dir for bugs investigation

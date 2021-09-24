@@ -11,7 +11,7 @@ readonly SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly CONSTS_SCRIPT="$SCRIPTS_DIR/constants.sh"
 readonly COMMON_SCRIPT="$SCRIPTS_DIR/common.sh"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_img_extract.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("find" "bsdtar" "uname" "du" "stat" "tr" "cut" "simg2img" "debugfs")
+declare -a SYS_TOOLS=("find" "bsdtar" "uname" "du" "stat" "tr" "cut" "simg2img" "debugfs" "jq")
 
 abort() {
   # If debug keep work dir for bugs investigation

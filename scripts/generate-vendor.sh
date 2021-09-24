@@ -13,7 +13,7 @@ readonly REALPATH_SCRIPT="$SCRIPTS_DIR/realpath.sh"
 readonly CONSTS_SCRIPT="$SCRIPTS_DIR/constants.sh"
 readonly COMMON_SCRIPT="$SCRIPTS_DIR/common.sh"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_vendor_setup.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("cp" "sed" "zipinfo" "jarsigner" "awk" "shasum")
+declare -a SYS_TOOLS=("cp" "sed" "zipinfo" "jarsigner" "awk" "shasum" "jq")
 
 # Standalone symlinks. Need to also take care standalone firmware bin
 # symlinks between /data/misc & /system/etc/firmware.
