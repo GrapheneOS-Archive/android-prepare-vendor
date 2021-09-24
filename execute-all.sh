@@ -453,15 +453,12 @@ case $BYTECODE_REPAIR_METHOD in
     ;;
   "OATDUMP")
     REPAIR_SCRIPT_ARG=(--oatdump "$SCRIPTS_ROOT/../out/host/linux-x86/bin/oatdump")
-    FORCE_PREOPT=true
     ;;
   *)
     echo "[-] Invalid bytecode repair method"
     abort 1
     ;;
 esac
-
-FORCE_PREOPT=false
 
 # If deodex all not set provide a list of packages to repair
 if [ $DEODEX_ALL = false ]; then
