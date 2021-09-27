@@ -61,7 +61,11 @@ def main():
                         "enable_apps_string_array",
                         "gps.nfw_proxy_apps",
                         "smart_forwarding_config_component_name_string",
-                        "wfc_emergency_address_carrier_app_string"]
+                        "wfc_emergency_address_carrier_app_string",
+                        "ci_action_on_sys_update_bool",
+                        "ci_action_on_sys_update_extra_string",
+                        "ci_action_on_sys_update_extra_val_string",
+                        "ci_action_on_sys_update_intent_string"]
 
     carrier_id_list = CarrierIdList()
     carrier_attribute_map = {}
