@@ -638,10 +638,15 @@
     "lib64/soundfx/libqcomvoiceprocessingdescriptors.so",
     "lib64/soundfx/libreverbwrapper.so",
     "lib64/soundfx/libvisualizer.so",
+    "odm_dlkm/etc/build.prop",
+    "odm_dlkm/etc/NOTICE.xml.gz",
     "odm/etc/NOTICE.xml.gz",
     "odm/etc/build.prop",
     "odm/etc/group",
     "odm/etc/passwd",
-    "overlay/SecureElement__auto_generated_rro_vendor.apk"
+    "overlay/Telecom__auto_generated_rro_vendor.apk",
+    "overlay/Traceur__auto_generated_rro_vendor.apk",
+    "vendor_dlkm/etc/build.prop",
+    "vendor_dlkm/etc/NOTICE.xml.gz"
   ]
 }
