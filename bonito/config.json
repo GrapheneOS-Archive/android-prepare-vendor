@@ -33,7 +33,6 @@
     "system/priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk"
   ],
   "system-other": [
-    "system/bin/move_time_data.sh",
     "system/etc/permissions/UimService.xml",
     "system/etc/permissions/com.qualcomm.qcrilmsgtunnel.xml",
     "system/etc/permissions/com.qualcomm.qti.imscmservice.xml",
@@ -45,9 +44,7 @@
     "system/lib/lib-imsvt.so",
     "system/lib/lib-imsvtextutils.so",
     "system/lib/lib-imsvtutils.so",
-    "system/lib/libOpenCL_system.so",
     "system/lib/libadsprpc_system.so",
-    "system/lib/libbluetooth_qti.so",
     "system/lib/libcdsprpc_system.so",
     "system/lib/libimscamera_jni.so",
     "system/lib/libimsmedia_jni.so",
@@ -62,7 +59,6 @@
     "system/lib64/lib-imsvt.so",
     "system/lib64/lib-imsvtextutils.so",
     "system/lib64/lib-imsvtutils.so",
-    "system/lib64/libOpenCL_system.so",
     "system/lib64/libadsprpc_system.so",
     "system/lib64/libcdsprpc_system.so",
     "system/lib64/libimscamera_jni.so",
@@ -166,8 +162,7 @@
     "product/lib/libdmengine.so",
     "product/lib/libdmjavaplugin.so",
     "product/lib/libsecureuisvc_jni.so",
-    "product/lib64/libsecureuisvc_jni.so",
-    "product/lib64/libsketchology_native.so"
+    "product/lib64/libsecureuisvc_jni.so"
   ],
   "forced-modules": [
     "android.hardware.identity-support-lib.vendor",
@@ -563,10 +558,16 @@
     "lib64/soundfx/libvolumelistener.so",
     "lib64/vendor.nxp.nxpese@1.0.so",
     "lib64/vendor.nxp.nxpnfc@1.0.so",
+    "odm_dlkm/etc/build.prop",
+    "odm_dlkm/etc/NOTICE.xml.gz",
     "odm/etc/NOTICE.xml.gz",
     "odm/etc/build.prop",
     "odm/etc/group",
     "odm/etc/passwd",
+    "overlay/Telecom__auto_generated_rro_vendor.apk",
+    "overlay/Traceur__auto_generated_rro_vendor.apk",
+    "vendor_dlkm/etc/build.prop",
+    "vendor_dlkm/etc/NOTICE.xml.gz",
     "odm/etc/vintf/manifest_G020A.xml",
     "odm/etc/vintf/manifest_G020B.xml",
     "odm/etc/vintf/manifest_G020C.xml",
