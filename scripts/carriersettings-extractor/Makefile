@@ -10,5 +10,5 @@ clean:
 
 vendor/carrierId.proto:
 	curl \
-	https://android.googlesource.com/platform/frameworks/opt/telephony/+/refs/heads/master/proto/src/carrierId.proto?format=TEXT | \
+	https://android.googlesource.com/platform/frameworks/opt/telephony/+/refs/heads/android12-release/proto/src/carrierId.proto?format=TEXT | \
 	base64 --decode > $@

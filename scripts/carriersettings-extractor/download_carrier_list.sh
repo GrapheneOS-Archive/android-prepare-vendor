@@ -34,6 +34,6 @@ if [[ "$OUTPUT_DIR" == "" || ! -d "$OUTPUT_DIR" ]]; then
   usage
 fi
 
-url='https://android.googlesource.com/platform/packages/providers/TelephonyProvider/+/master/assets/latest_carrier_id/carrier_list.pb?format=TEXT'
+url='https://android.googlesource.com/platform/packages/providers/TelephonyProvider/+/android12-release/assets/latest_carrier_id/carrier_list.pb?format=TEXT'
 echo "[*] Downloading carrier list from '$url'"
 curl -fS "$url" | base64 --decode > "$OUTPUT_DIR"/carrier_list.pb
