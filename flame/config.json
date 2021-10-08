@@ -158,7 +158,14 @@
     "nos_app_identity",
     "nos_app_keymaster",
     "nos_app_weaver",
-    "sound_trigger.primary.msmnile"
+    "sound_trigger.primary.msmnile",
+    "android.hardware.camera.provider@2.7-impl",
+    "android.hardware.camera.provider@2.7-service_64",
+    "android.hardware.audio.service@7.0-impl",
+    "android.hardware.oemlock@1.0-impl",
+    "android.hardware.authsecret@1.0-service",
+    "android.hardware.bluetooth@1.0-impl"
+
   ],
   "new-modules": [],
   "vendor-skip-files": [
@@ -204,7 +211,6 @@
     "lib64/android.hardware.atrace@1.0.so",
     "lib64/android.hardware.audio.common@5.0.so",
     "lib64/android.hardware.authsecret@1.0.so",
-    "lib64/android.hardware.biometrics.face@1.0.so",
     "lib64/android.hardware.bluetooth@1.0.so",
     "lib64/android.hardware.bluetooth.audio@2.0.so",
     "lib64/android.hardware.bluetooth.audio@2.1.so",
