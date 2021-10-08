@@ -167,7 +167,6 @@
     "android.hardware.authsecret@1.0-service",
     "android.hardware.bluetooth@1.0-service",
     "android.hardware.bluetooth.audio@2.1-impl"
-
   ],
   "new-modules": [],
   "vendor-skip-files": [
@@ -195,7 +194,6 @@
     "etc/init/android.hardware.drm@1.4-service.clearkey.rc",
     "etc/init/android.hardware.usb@1.3-service.coral.rc",
     "etc/init/pixel-thermal-symlinks.rc",
-    "etc/permissions/android.hardware.identity_credential.xml",
     "etc/vintf/manifest/android.hardware.boot@1.2.xml",
     "etc/vintf/manifest/android.hardware.camera.provider@2.7-service-google.xml",
     "etc/vintf/manifest/android.hardware.contexthub@1.2-generic.xml",
@@ -342,7 +340,6 @@
     "lib/android.hardware.audio.common-util.so",
     "lib/android.hardware.audio.common@5.0-util.so",
     "lib/android.hardware.audio.common@6.0-util.so",
-    "lib/android.hardware.sensors@2.0-ScopedWakelock.so",
     "lib/ese_spi_st.so",
     "lib/hardware.google.light@1.0.so",
     "lib/hw/adnc_strm.primary.default.so",
@@ -455,7 +452,6 @@
     "lib/soundfx/libvisualizer.so",
     "lib64/android.hardware.graphics.composer@2.1-resources.so",
     "lib64/android.hardware.identity-support-lib.so",
-    "lib64/android.hardware.sensors@2.0-ScopedWakelock.so",
     "lib64/ese_spi_st.so",
     "lib64/hardware.google.light@1.0.so",
     "lib64/hardware.google.light@1.1.so",
