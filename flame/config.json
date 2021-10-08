@@ -165,7 +165,8 @@
     "android.hardware.audio.service@7.0-impl",
     "android.hardware.oemlock@1.0-impl",
     "android.hardware.authsecret@1.0-service",
-    "android.hardware.bluetooth@1.0-impl"
+    "android.hardware.bluetooth@1.0-service",
+    "android.hardware.bluetooth.audio@2.1-impl"
 
   ],
   "new-modules": [],
