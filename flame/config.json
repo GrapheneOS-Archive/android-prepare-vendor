@@ -166,7 +166,8 @@
     "android.hardware.oemlock@1.0-impl",
     "android.hardware.authsecret@1.0-service",
     "android.hardware.bluetooth@1.0-service",
-    "android.hardware.bluetooth.audio@2.1-impl"
+    "android.hardware.bluetooth.audio@2.1-impl",
+    "libprotobuf-cpp-full-vendorcompat"
   ],
   "new-modules": [],
   "vendor-skip-files": [
