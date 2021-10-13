@@ -297,7 +297,7 @@
   "device-vendor": [
     "PRODUCT_PROPERTY_OVERRIDES += \\",
     "    ro.hardware.egl=adreno \\",
-    "    ro.hardware.vulkan=adreno",
+    "    ro.hardware.vulkan=adreno \\",
     "    ro.hardware.keystore_desede=true \\",
     "    ro.crypto.dm_default_key.options_format.version=2 \\",
     "    ro.crypto.volume.metadata.method=dm-default-key \\",
