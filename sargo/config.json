@@ -119,6 +119,8 @@
     "system_ext/lib/vendor.qti.imsrtpservice@1.0.so",
     "system_ext/lib64/com.qualcomm.qti.imscmservice@1.0.so",
     "system_ext/lib64/com.qualcomm.qti.uceservice@2.0.so",
+    "system_ext/lib64/libaptXHD_encoder.so",
+    "system_ext/lib64/libaptX_encoder.so",
     "system_ext/lib64/libdiag_system.so",
     "system_ext/lib64/vendor.display.color@1.0.so",
     "system_ext/lib64/vendor.display.color@1.1.so",
