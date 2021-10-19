@@ -222,6 +222,7 @@ def main():
         f.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n\n')
         f.write('<apns version="8">\n\n')
 
+        version_suffix = all_settings['default'].version % 1000000000
         for entry in carrier_list.entry:
             setting = all_settings[entry.canonicalName]
             for apn in setting.apns.apn:
@@ -243,6 +244,19 @@ def main():
                         field,
                         getattr(entry.carrierId, field),
                     )
+
+            # Add version key composed of canonical name and versions
+            carrier_config_subelement = ET.SubElement(
+                carrier_config_element,
+                'string'
+            )
+            carrier_config_subelement.set('name', 'carrier_config_version_string')
+            carrier_config_subelement.text = '{}-{}.{}'.format(
+                setting.canonicalName,
+                setting.version,
+                version_suffix
+            )
+
             for config in setting.configs.config:
                 if config.key in unwanted_configs:
                     continue
