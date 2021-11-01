@@ -399,6 +399,7 @@
     "hardware.google.bluetooth.sar@1.0.vendor",
     "hardware.google.light@1.0.vendor",
     "libavservices_minijail.vendor",
+    "libavservices_minijail_vendor",
     "libcld80211",
     "libcodec2_hidl@1.0.vendor",
     "libcodec2_vndk.vendor",
