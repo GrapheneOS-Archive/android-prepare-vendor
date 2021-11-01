@@ -364,10 +364,8 @@
     "    ro.gfx.driver.1=com.qualcomm.qti.gpudrivers.sm6150.api30",
     "",
     "BOARD_VENDOR_SEPOLICY_DIRS += \\",
-    "    hardware/google/pixel-sepolicy/citadel \\",
     "    hardware/google/pixel-sepolicy/confirmationui_hal \\",
-    "    hardware/google/pixel-sepolicy/googlebattery \\",
-    "    hardware/google/pixel-sepolicy/wifi_ext"
+    "    hardware/google/pixel-sepolicy/googlebattery"
   ],
   "forced-modules": [
     "android.frameworks.stats@1.0.vendor",
