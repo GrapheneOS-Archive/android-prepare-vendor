@@ -90,6 +90,8 @@
     "system_ext/priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk"
   ],
   "system_ext-other": [
+    "system_ext/bin/tcmd",
+    "system_ext/bin/qspmsvc",
     "system_ext/etc/init/init.sota.rc",
     "system_ext/etc/init/qspmsvc.rc",
     "system_ext/etc/init/tcmd.rc",
@@ -488,6 +490,7 @@
   ],
   "forced-modules": [
     "android.frameworks.stats@1.0.vendor:64",
+    "android.frameworks.sensorservice@1.0",
     "android.hardware.authsecret@1.0.vendor",
     "android.hardware.biometrics.fingerprint@2.2.vendor:64",
     "android.hardware.bluetooth@1.0.vendor",
