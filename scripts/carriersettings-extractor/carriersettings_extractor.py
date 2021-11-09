@@ -73,7 +73,8 @@ def main():
                         "read_only_apn_fields_string_array",
                         "read_only_apn_types_string_array",
                         "show_apn_setting_cdma_bool",
-                        "carrier_provisioning_app_string"
+                        "carrier_provisioning_app_string",
+                        "hide_enable_2g_bool"
                         ]
 
     carrier_id_list = CarrierIdList()
