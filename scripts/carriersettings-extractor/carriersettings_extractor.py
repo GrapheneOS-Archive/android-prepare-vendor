@@ -74,7 +74,8 @@ def main():
                         "read_only_apn_types_string_array",
                         "show_apn_setting_cdma_bool",
                         "carrier_provisioning_app_string",
-                        "hide_enable_2g_bool"
+                        "hide_enable_2g_bool",
+                        "com.google.android.dialer.display_wifi_calling_button_bool"
                         ]
 
     carrier_id_list = CarrierIdList()
