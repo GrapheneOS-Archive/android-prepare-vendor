@@ -92,7 +92,6 @@
   "system_ext-other": [
     "system_ext/bin/tcmd",
     "system_ext/bin/qspmsvc",
-    "system_ext/etc/init/init.sota.rc",
     "system_ext/etc/init/qspmsvc.rc",
     "system_ext/etc/init/tcmd.rc",
     "system_ext/etc/perf/wlc_model.tflite",
