@@ -39,3 +39,11 @@ bramble/*
 barbet/*
 !barbet/config.json
 !barbet/overlays-*
+
+oriole/*
+!oriole/config.json
+!oriole/overlays-*
+
+raven/*
+!raven/config.json
+!raven/overlays-*

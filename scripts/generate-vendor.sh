@@ -537,6 +537,14 @@ gen_board_family_cfg_mk() {
     familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
     majorTarget="barbet"
     minorTarget="barbet"
+  elif [[ "$DEVICE_FAMILY" == "oriole" ]]; then
+    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
+    majorTarget="oriole"
+    minorTarget="oriole"
+  elif [[ "$DEVICE_FAMILY" == "raven" ]]; then
+    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
+    majorTarget="raven"
+    minorTarget="raven"
   else
     return 0
   fi
