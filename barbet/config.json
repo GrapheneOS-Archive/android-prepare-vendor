@@ -484,6 +484,7 @@
     "    ro.gfx.driver.1=com.qualcomm.qti.gpudrivers.lito.api30",
     "",
     "BOARD_VENDOR_SEPOLICY_DIRS += \\",
+    "    hardware/google/pixel-sepolicy/confirmationui_hal \\",
     "    hardware/google/pixel-sepolicy/googlebattery"
   ],
   "forced-modules": [
