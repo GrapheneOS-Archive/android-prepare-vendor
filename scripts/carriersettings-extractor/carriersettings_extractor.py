@@ -341,8 +341,48 @@ def main():
 
     indent(carrier_config_root)
     carrier_config_tree = ET.ElementTree(carrier_config_root)
-    carrier_config_tree.write(os.path.join(vendor_folder, 'vendor.xml'),
-                              encoding='utf-8', xml_declaration=True)
+    root_carrier_config_tree = carrier_config_tree.getroot()
+
+    # dict containing each mccmnc, each of which contains a list of all configs which are dicts
+    carrier_config_mccmnc_aggregated = {}
+
+    # front is set to True if the carrier config is not an MVNO, meaning it must be the first in the vendor.xml
+    for lone_carrier_config in root_carrier_config_tree:
+        if ("gid1" not in lone_carrier_config.attrib) and ("gid2" not in lone_carrier_config.attrib) and ("spn" not in lone_carrier_config.attrib) and ("imsi" not in lone_carrier_config.attrib):
+            front = True
+        else:
+            front = False
+
+        # Append mnc to mcc as this is how the CarrierConfig app searches for a valid config
+        mccmnc_combo = lone_carrier_config.attrib["mcc"] + lone_carrier_config.attrib["mnc"]
+
+        # Handle multiple carrier configurations under the same mcc and mnc combination
+        if mccmnc_combo not in carrier_config_mccmnc_aggregated:
+            carrier_config_mccmnc_aggregated[mccmnc_combo] = []
+        mccmnc_combo_list = carrier_config_mccmnc_aggregated[mccmnc_combo]
+        if front == True:
+            mccmnc_combo_list.insert(0,lone_carrier_config)
+        else:
+            mccmnc_combo_list.append(lone_carrier_config)
+        carrier_config_mccmnc_aggregated[mccmnc_combo] = mccmnc_combo_list
+
+
+    # Write carrier configs in numerical order of mcc+mnc, with non-MVNOs being first always
+    # non-MVNOs must always be first otherwise MVNOs will break
+    with open(os.path.join(vendor_folder, 'vendor.xml'), 'w', encoding='utf-8') as f:
+        f.write('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n')
+        f.write('<carrier_config_list>\n')
+        for configfile in carrier_config_mccmnc_aggregated:
+            config_list = carrier_config_mccmnc_aggregated[configfile]
+            for config in config_list:
+                config_tree =  ET.ElementTree(config)
+                config_tree = config_tree.getroot()
+                indent(config_tree)
+                single_carrier_config = ET.tostring(config_tree, encoding='unicode')
+                single_carrier_config = str(single_carrier_config)
+                f.write(single_carrier_config)
+        f.write('</carrier_config_list>\n')
+        f.close()
 
     # Test XML parsing.
     ET.parse(os.path.join(vendor_folder, 'vendor.xml'))
