@@ -25,6 +25,7 @@
   "product-bytecode": [],
   "product-other": [
     "product/etc/apns-conf.xml",
+    "product/etc/permissions/android.hardware.telephony.euicc.xml",
     "product/lib/libdmengine.so",
     "product/lib/libdmjavaplugin.so"
     ],
