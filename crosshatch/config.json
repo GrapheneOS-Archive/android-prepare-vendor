@@ -15,7 +15,8 @@
     "qupfw",
     "tz",
     "xbl",
-    "xbl_config"
+    "xbl_config",
+    "vendor"
   ],
   "AndroidMk": "crosshatch/Android.mk",
   "BoardConfigVendorMk": "crosshatch/BoardConfigVendorPartial.mk",

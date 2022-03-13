@@ -15,7 +15,8 @@
     "qupfw",
     "tz",
     "xbl",
-    "xbl_config"
+    "xbl_config",
+    "vendor"
   ],
   "AndroidMk": "blueline/Android.mk",
   "BoardConfigVendorMk": "blueline/BoardConfigVendorPartial.mk",

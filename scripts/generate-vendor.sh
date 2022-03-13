@@ -443,7 +443,10 @@ gen_board_vendor_mk() {
     if [[ "$VENDOR" == "google" && "$OTA_IMGS_LIST" != "" ]]; then
       for img in "${OTA_IMGS[@]}"
       do
-        echo "\$(call add-radio-file,radio/$img.img)"
+      if [[ "$img" == "vendor" ]]; then
+        continue
+      fi
+      echo "\$(call add-radio-file,radio/$img.img)"
       done
     fi
   } >> "$ANDROID_BOARD_VENDOR_MK"
@@ -478,11 +481,16 @@ gen_board_cfg_mk() {
   fi
 
   {
+    if [[ "$DEVICE" == "crosshatch" || "blueline" ]]; then
+      echo "BOARD_PREBUILT_VENDORIMAGE := vendor/$VENDOR_DIR/$DEVICE/radio/vendor.img"
+    fi
     echo "TARGET_BOARD_INFO_FILE := vendor/$VENDOR_DIR/$DEVICE/vendor-board-info.txt"
-    echo 'BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4'
-    echo 'ifneq ($(PRODUCT_USE_DYNAMIC_PARTITIONS), true)'
-    echo "  BOARD_VENDORIMAGE_PARTITION_SIZE := $v_img_sz"
-    echo 'endif'
+    if [[ "$DEVICE" != "crosshatch" || "blueline" ]]; then
+      echo 'BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4'
+      echo 'ifneq ($(PRODUCT_USE_DYNAMIC_PARTITIONS), true)'
+      echo "  BOARD_VENDORIMAGE_PARTITION_SIZE := $v_img_sz"
+      echo 'endif'
+    fi
     if [[ "$p_img_sz" != "" ]]; then
       echo 'ifneq ($(PRODUCT_NO_PRODUCT_PARTITION), true)'
       echo '  ifneq ($(PRODUCT_USE_DYNAMIC_PARTITIONS), true)'
