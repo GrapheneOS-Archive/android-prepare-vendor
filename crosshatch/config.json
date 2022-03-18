@@ -163,7 +163,9 @@
     "system_ext/priv-app/EuiccSupportPixel/esim-full-v0.img",
     "system_ext/priv-app/EuiccSupportPixel/esim-v1.img"
   ],
-  "product-bytecode": [],
+  "product-bytecode": [
+    "product/priv-app/EuiccGoogle/EuiccGoogle.apk"
+  ],
   "product-other": [
     "product/etc/apns-conf.xml",
     "product/etc/permissions/android.hardware.telephony.euicc.xml",

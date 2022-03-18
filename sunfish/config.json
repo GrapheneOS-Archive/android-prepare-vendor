@@ -21,7 +21,9 @@
   "DeviceVendorMk": "sunfish/proprietary/device-vendor.mk",
   "overlays-dir": "",
   "rro-overlays": ["CarrierConfigOverlay"],
-  "product-bytecode": [],
+  "product-bytecode": [
+    "product/priv-app/EuiccGoogle/EuiccGoogle.apk"
+  ],
   "product-other": [
     "product/etc/apns-conf.xml",
     "product/etc/permissions/android.hardware.telephony.euicc.xml",
