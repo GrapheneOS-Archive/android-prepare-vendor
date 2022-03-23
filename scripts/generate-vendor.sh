@@ -118,6 +118,16 @@ get_build_id() {
   echo "$build_id"
 }
 
+get_build_fingerprint() {
+  local build_fingerprint=""
+  build_fingerprint=$(grep 'ro.system.build.fingerprint' "$1" | cut -d '=' -f2 || true)
+  if [[ "$build_fingerprint" == "" ]]; then
+    echo "[-] Failed to identify build fingerprint"
+    abort 1
+  fi
+  echo "$build_fingerprint"
+}
+
 has_partition_size() {
   local search_file="$2/${1}_partition_size"
   if [ -f "$search_file" ]; then
@@ -1280,6 +1290,7 @@ VENDOR_DIR="$(jqRawStrTop "aosp-vendor-dir" "$CONFIG_FILE")"
 RADIO_VER=$(get_radio_ver "$INPUT_DIR/vendor/build.prop")
 BOOTLOADER_VER=$(get_bootloader_ver "$INPUT_DIR/vendor/build.prop")
 BUILD_ID=$(get_build_id "$INPUT_DIR/system/build.prop")
+BUILD_FINGERPRINT=$(get_build_fingerprint "$INPUT_DIR/system/build.prop")
 if [[ "$OTA_IMGS_LIST" != "" ]]; then
   readarray -t OTA_IMGS < <(echo "$OTA_IMGS_LIST")
 fi
@@ -1369,6 +1380,9 @@ update_vendor_blobs_mk "$BLOBS_LIST"
 echo "[*] Generating '$(basename "$DEVICE_VENDOR_MK")'"
 echo -e "VENDOR_DEVICE := \$(TARGET_PRODUCT:aosp_%=%)" >> "$DEVICE_VENDOR_MK"
 echo -e "\$(call inherit-product, vendor/$VENDOR_DIR/\$(VENDOR_DEVICE)/\$(VENDOR_DEVICE)-vendor-blobs.mk)\n" >> "$DEVICE_VENDOR_MK"
+echo -e "PRODUCT_OVERRIDE_FINGERPRINT := $BUILD_FINGERPRINT\n" >> "$DEVICE_VENDOR_MK"
+echo -e "ADDITIONAL_SYSTEM_PROPERTIES += \\ 
+    ro.build.stock_fingerprint=\$(PRODUCT_OVERRIDE_FINGERPRINT)\n" >> "$DEVICE_VENDOR_MK"
 
 # Append items listed in device vendor configuration file
 {
