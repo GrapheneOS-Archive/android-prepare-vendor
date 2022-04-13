@@ -21,7 +21,7 @@
   "BoardConfigVendorMk": "blueline/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "crosshatch/proprietary/device-vendor.mk",
   "overlays-dir": "",
-  "rro-overlays": ["CarrierConfigOverlay"],
+  "rro-overlays": [],
   "system-bytecode": [
     "system/app/datastatusnotification/datastatusnotification.apk",
     "system/app/ims/ims.apk",
@@ -167,7 +167,6 @@
     "product/priv-app/EuiccGoogle/EuiccGoogle.apk"
   ],
   "product-other": [
-    "product/etc/apns-conf.xml",
     "product/etc/permissions/android.hardware.telephony.euicc.xml",
     "product/lib/libdmengine.so",
     "product/lib/libdmjavaplugin.so",
