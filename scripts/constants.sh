@@ -6,16 +6,8 @@
 declare -ra SUPPORTED_DEVICES=(
   "blueline"      # Pixel 3
   "crosshatch"    # Pixel 3 XL
-  "flame"         # Pixel 4
-  "coral"         # Pixel 4 XL
   "sargo"         # Pixel 3a
   "bonito"        # Pixel 3a XL
-  "sunfish"       # Pixel 4a
-  "redfin"        # Pixel 5
-  "bramble"       # Pixel 4a (5G)
-  "barbet"        # Pixel 5a
-  "oriole"        # Pixel 6
-  "raven"         # Pixel 6 Pro
 )
 
 # URLs to download factory images from
