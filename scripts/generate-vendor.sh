@@ -517,34 +517,6 @@ gen_board_family_cfg_mk() {
     familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
     majorTarget="bonito"
     minorTarget="sargo"
-  elif [[ "$DEVICE_FAMILY" == "coral" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="coral"
-    minorTarget="flame"
-  elif [[ "$DEVICE_FAMILY" == "sunfish" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="sunfish"
-    minorTarget="sunfish"
-  elif [[ "$DEVICE_FAMILY" == "redfin" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="redfin"
-    minorTarget="redfin"
-  elif [[ "$DEVICE_FAMILY" == "bramble" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="bramble"
-    minorTarget="bramble"
-  elif [[ "$DEVICE_FAMILY" == "barbet" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="barbet"
-    minorTarget="barbet"
-  elif [[ "$DEVICE_FAMILY" == "oriole" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="oriole"
-    minorTarget="oriole"
-  elif [[ "$DEVICE_FAMILY" == "raven" ]]; then
-    familyBoardCfgVendorMk="$OUTPUT_DIR/vendor/$VENDOR_DIR/$DEVICE_FAMILY/proprietary/BoardConfigVendor.mk"
-    majorTarget="raven"
-    minorTarget="raven"
   else
     return 0
   fi
