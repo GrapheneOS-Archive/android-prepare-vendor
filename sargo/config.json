@@ -21,7 +21,7 @@
   "BoardConfigVendorMk": "sargo/BoardConfigVendorPartial.mk",
   "DeviceVendorMk": "bonito/proprietary/device-vendor.mk",
   "overlays-dir": "",
-  "rro-overlays": ["CarrierConfigOverlay"],
+  "rro-overlays": [],
   "system-bytecode": [
     "system/app/QtiTelephonyService/QtiTelephonyService.apk",
     "system/app/datastatusnotification/datastatusnotification.apk",
@@ -168,7 +168,6 @@
     "product/priv-app/EuiccGoogle/EuiccGoogle.apk"
   ],
   "product-other": [
-    "product/etc/apns-conf.xml",
     "product/etc/permissions/android.hardware.telephony.euicc.xml",
     "product/lib/libdmengine.so",
     "product/lib/libdmjavaplugin.so",
